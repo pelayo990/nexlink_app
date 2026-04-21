@@ -54,3 +54,14 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// PUT /api/eventos/:id
+router.put('/:id', authMiddleware, async (req, res) => {
+  const { empresasInvitadas, ...rest } = req.body;
+  const evento = await prisma.evento.update({
+    where: { id: req.params.id },
+    data: rest,
+    include: { marca: true },
+  });
+  res.json(evento);
+});
