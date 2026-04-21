@@ -143,6 +143,9 @@ export default function Login() {
             {loading ? 'Ingresando…' : <><LogIn size={16} /> Ingresar</>}
           </button>
         </form>
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-secondary)' }}>
+          ¿No tienes cuenta? <Link to="/registro" style={{ color: '#4F46E5', fontWeight: 600, textDecoration: 'none' }}>Crear cuenta</Link>
+        </p>
       </div>
     </div>
   );
