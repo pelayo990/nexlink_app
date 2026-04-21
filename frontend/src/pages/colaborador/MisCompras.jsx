@@ -11,13 +11,17 @@ export default function MisCompras() {
 
   useEffect(() => {
     if (user?.colaboradorId)
-      api.get(`/dashboard/colaborador/${user.colaboradorId}`).then(r => setData(r.data)).finally(() => setLoading(false));
+      api.get('/compras/mis-compras').then(r => setData({ historialCompras: r.data, stats: null })).finally(() => setLoading(false));
   }, [user]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Cargando…</div>;
 
-  const stats = data?.stats || {};
   const historial = data?.historialCompras || [];
+  const stats = {
+    comprasTotales: historial.length,
+    puntos: historial.reduce((s, c) => s + Math.floor(c.monto / 1000), 0),
+    montoAhorrado: historial.reduce((s, c) => s + (c.monto * 0.35), 0),
+  };
 
   return (
     <>
@@ -55,8 +59,8 @@ export default function MisCompras() {
                 <tbody>
                   {historial.map(c => (
                     <tr key={c.id}>
-                      <td style={{ fontWeight: 600 }}>{c.productoId}</td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{c.eventoId}</td>
+                      <td style={{ fontWeight: 600 }}>{c.producto?.nombre || c.productoId}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{c.evento?.nombre || '—'}</td>
                       <td style={{ fontSize: 13, color: 'var(--text-muted)' }}>{new Date(c.fecha).toLocaleDateString('es-CL')}</td>
                       <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${c.monto.toLocaleString('es-CL')}</td>
                       <td><span className={`badge ${c.estado === 'completada' ? 'badge-success' : 'badge-warning'}`}>{c.estado}</span></td>

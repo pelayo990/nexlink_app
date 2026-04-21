@@ -10,6 +10,8 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminMarcas from './pages/admin/Marcas';
 import AdminEmpresas from './pages/admin/Empresas';
 import AdminEventos from './pages/admin/Eventos';
+import AdminColaboradores from './pages/admin/Colaboradores';
+import AdminReportes from './pages/admin/Reportes';
 
 import MarcaDashboard from './pages/marca/Dashboard';
 import MarcaProductos from './pages/marca/Productos';
@@ -63,6 +65,8 @@ export default function App() {
           <Route path="/admin/marcas" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminMarcas /></AppLayout></ProtectedRoute>} />
           <Route path="/admin/empresas" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEmpresas /></AppLayout></ProtectedRoute>} />
           <Route path="/admin/eventos" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEventos /></AppLayout></ProtectedRoute>} />
+          <Route path="/admin/colaboradores" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminColaboradores /></AppLayout></ProtectedRoute>} />
+          <Route path="/admin/reportes" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminReportes /></AppLayout></ProtectedRoute>} />
 
           {/* Marca */}
           <Route path="/marca" element={<ProtectedRoute roles={['marca']}><AppLayout><MarcaDashboard /></AppLayout></ProtectedRoute>} />

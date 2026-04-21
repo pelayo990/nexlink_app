@@ -35,7 +35,7 @@ export default function AdminEmpresas() {
             { label: 'Total Empresas', value: empresas.length, color: '#4F46E5' },
             { label: 'Activas', value: empresas.filter(e => e.estado === 'activo').length, color: '#10B981' },
             { label: 'Colaboradores Total', value: empresas.reduce((s, e) => s + e.totalColaboradores, 0).toLocaleString('es-CL'), color: '#06B6D4' },
-            { label: 'Ahorro Generado', value: `$${(empresas.reduce((s, e) => s + e.estadisticas.ahorroColaboradores, 0) / 1000000).toFixed(1)}M`, color: '#10B981' },
+            { label: 'Ahorro Generado', value: `$${(empresas.reduce((s, e) => s + e.ahorroColaboradores, 0) / 1000000).toFixed(1)}M`, color: '#10B981' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: '16px 20px' }}>
               <div style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -73,14 +73,14 @@ export default function AdminEmpresas() {
                         <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>de {e.totalColaboradores.toLocaleString('es-CL')}</div>
                       </td>
                       <td style={{ fontWeight: 700, color: 'var(--success)' }}>
-                        ${(e.estadisticas.ahorroColaboradores / 1000000).toFixed(1)}M
+                        ${(e.ahorroColaboradores / 1000000).toFixed(1)}M
                       </td>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <div className="progress-bar" style={{ width: 60 }}>
-                            <div className="progress-fill" style={{ width: `${e.estadisticas.satisfaccion}%`, background: e.estadisticas.satisfaccion > 90 ? '#10B981' : '#F59E0B' }} />
+                            <div className="progress-fill" style={{ width: `${e.satisfaccion}%`, background: e.satisfaccion > 90 ? '#10B981' : '#F59E0B' }} />
                           </div>
-                          <span style={{ fontSize: 13, fontWeight: 700 }}>{e.estadisticas.satisfaccion}%</span>
+                          <span style={{ fontSize: 13, fontWeight: 700 }}>{e.satisfaccion}%</span>
                         </div>
                       </td>
                       <td>

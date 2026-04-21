@@ -124,11 +124,20 @@ export default function Marketplace() {
     setCarrito(c => [...c, producto]);
   };
 
-  const confirmarCompra = () => {
-    setCarrito([]);
-    setShowCarrito(false);
-    setCompraOk(true);
-    setTimeout(() => setCompraOk(false), 3500);
+  const confirmarCompra = async () => {
+    try {
+      await Promise.all(
+        carrito.map(item =>
+          api.post('/compras', { productoId: item.id, eventoId: item.eventoId || null })
+        )
+      );
+      setCarrito([]);
+      setShowCarrito(false);
+      setCompraOk(true);
+      setTimeout(() => setCompraOk(false), 3500);
+    } catch (e) {
+      alert('Error al procesar la compra. Intenta nuevamente.');
+    }
   };
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Cargando marketplace…</div>;

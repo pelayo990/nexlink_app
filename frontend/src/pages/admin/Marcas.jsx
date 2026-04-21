@@ -96,11 +96,11 @@ export default function AdminMarcas() {
                           </span>
                         </td>
                         <td><span className={`badge ${estado.cls}`}>{estado.label}</span></td>
-                        <td style={{ fontWeight: 600 }}>{m.statsVentas.totalEventos}</td>
+                        <td style={{ fontWeight: 600 }}>{m.totalEventos}</td>
                         <td style={{ fontWeight: 700, color: 'var(--success)' }}>
-                          ${(m.statsVentas.ventasTotales / 1000000).toFixed(1)}M
+                          ${(m.ventasTotales / 1000000).toFixed(1)}M
                         </td>
-                        <td style={{ fontWeight: 600 }}>{m.statsVentas.colaboradoresAlcanzados.toLocaleString('es-CL')}</td>
+                        <td style={{ fontWeight: 600 }}>{m.colaboradoresAlcanzados.toLocaleString('es-CL')}</td>
                         <td>
                           <div style={{ display: 'flex', gap: 6 }}>
                             <button className="btn btn-secondary btn-sm">Ver</button>
