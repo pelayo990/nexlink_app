@@ -3,13 +3,11 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
-const { PrismaClient } = require('@prisma/client');
 const crypto = require('crypto');
+const { PrismaClient } = require('@prisma/client');
 const { enviarVerificacion, enviarBienvenida } = require('../services/email');
+
 const prisma = new PrismaClient();
-
-
-
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET no definido en .env');
@@ -22,6 +20,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// POST /api/auth/login
 router.post('/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -33,13 +32,16 @@ router.post('/login', loginLimiter, async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return res.status(401).json({ error: 'Credenciales inválidas' });
 
+  if (!user.emailVerificado && user.rol !== 'admin') {
+    return res.status(403).json({ error: 'Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.' });
+  }
+
   const payload = {
     id: user.id,
     nombre: user.nombre,
     email: user.email,
     rol: user.rol,
     avatar: user.avatar,
-    marcaId: user.marcaId || null,
     empresaId: user.empresaId || null,
     colaboradorId: user.colaboradorId || null,
   };
@@ -48,6 +50,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   res.json({ token, user: payload });
 });
 
+// GET /api/auth/me
 router.get('/me', (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -59,8 +62,6 @@ router.get('/me', (req, res) => {
     res.status(403).json({ error: 'Token inválido' });
   }
 });
-
-module.exports = router;
 
 // POST /api/auth/cambiar-password
 router.post('/cambiar-password', async (req, res) => {
@@ -86,28 +87,7 @@ router.post('/cambiar-password', async (req, res) => {
 
   const hash = await bcrypt.hash(passwordNueva, 10);
   await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
-
   res.json({ message: 'Contraseña actualizada exitosamente' });
-});
-
-  if (password.length < 6)
-    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
-  if (!['marca', 'empresa'].includes(rol))
-    return res.status(400).json({ error: 'Rol no permitido para registro público' });
-
-  const existe = await prisma.user.findUnique({ where: { email } });
-  if (existe) return res.status(409).json({ error: 'Ya existe una cuenta con ese email' });
-
-  const hash = await bcrypt.hash(password, 10);
-  const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
-
-  const user = await prisma.user.create({
-    data: { nombre, email, password: hash, rol, avatar, marcaId: marcaId || null, empresaId: empresaId || null },
-  });
-
-  const payload = { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol, avatar: user.avatar, marcaId: user.marcaId, empresaId: user.empresaId, colaboradorId: null };
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
-  res.status(201).json({ token, user: payload });
 });
 
 // POST /api/auth/registro — solo colaboradores
@@ -119,7 +99,6 @@ router.post('/registro', async (req, res) => {
   if (password.length < 6)
     return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
 
-  // Verificar dominio
   const dominio = email.split('@')[1];
   if (!dominio) return res.status(400).json({ error: 'Email inválido' });
 
@@ -135,14 +114,12 @@ router.post('/registro', async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
   const token = crypto.randomBytes(32).toString('hex');
-  const tokenExpira = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+  const tokenExpira = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  // Crear colaborador
   const colaborador = await prisma.colaborador.create({
     data: { empresaId: empresa.id, nombre, email, cargo: cargo || null, rut: rut || null, estado: 'activo', puntos: 0 },
   });
 
-  // Crear usuario sin verificar
   await prisma.user.create({
     data: {
       nombre, email, password: hash, rol: 'colaborador', avatar,
@@ -151,7 +128,6 @@ router.post('/registro', async (req, res) => {
     },
   });
 
-  // Enviar email de verificación
   try {
     await enviarVerificacion({ nombre, email, token });
   } catch (e) {
@@ -178,7 +154,6 @@ router.get('/verificar', async (req, res) => {
     data: { emailVerificado: true, tokenVerificacion: null, tokenExpira: null },
   });
 
-  // Enviar email de bienvenida
   try {
     const empresa = await prisma.empresa.findUnique({ where: { id: user.empresaId } });
     await enviarBienvenida({ nombre: user.nombre, email: user.email, empresa: empresa?.nombre });
@@ -188,3 +163,5 @@ router.get('/verificar', async (req, res) => {
 
   res.json({ message: '¡Email verificado! Ya puedes iniciar sesión.', verificado: true });
 });
+
+module.exports = router;
