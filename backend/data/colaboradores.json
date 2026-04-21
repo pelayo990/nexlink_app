@@ -1,0 +1,87 @@
+[
+  {
+    "id": "c1",
+    "userId": "u4",
+    "empresaId": "e1",
+    "nombre": "María Fernández",
+    "email": "maria@bancochile.cl",
+    "cargo": "Analista Senior",
+    "area": "Tecnología",
+    "rut": "15.234.567-8",
+    "fechaIngreso": "2020-03-01",
+    "estado": "activo",
+    "puntos": 1240,
+    "compras": [
+      {
+        "id": "cp1",
+        "productoId": "p1",
+        "eventoId": "ev1",
+        "fecha": "2024-09-10T14:32:00",
+        "monto": 559990,
+        "estado": "completada"
+      }
+    ]
+  },
+  {
+    "id": "c2",
+    "userId": "u5",
+    "empresaId": "e2",
+    "nombre": "Pedro Soto",
+    "email": "pedro@entel.cl",
+    "cargo": "Ingeniero de Redes",
+    "area": "Operaciones",
+    "rut": "16.789.012-3",
+    "fechaIngreso": "2019-08-15",
+    "estado": "activo",
+    "puntos": 890,
+    "compras": [
+      {
+        "id": "cp2",
+        "productoId": "p7",
+        "eventoId": "ev3",
+        "fecha": "2024-09-20T10:15:00",
+        "monto": 95990,
+        "estado": "pendiente"
+      }
+    ]
+  },
+  {
+    "id": "c3",
+    "empresaId": "e1",
+    "nombre": "Carlos Rojas",
+    "email": "carlos.rojas@bancochile.cl",
+    "cargo": "Ejecutivo Comercial",
+    "area": "Ventas",
+    "rut": "14.567.890-1",
+    "fechaIngreso": "2018-05-20",
+    "estado": "activo",
+    "puntos": 2100,
+    "compras": []
+  },
+  {
+    "id": "c4",
+    "empresaId": "e1",
+    "nombre": "Valentina Muñoz",
+    "email": "valentina.munoz@bancochile.cl",
+    "cargo": "Gerenta de Proyectos",
+    "area": "Tecnología",
+    "rut": "17.234.567-9",
+    "fechaIngreso": "2021-02-10",
+    "estado": "activo",
+    "puntos": 560,
+    "compras": []
+  },
+  {
+    "id": "c5",
+    "empresaId": "e2",
+    "nombre": "Roberto Castro",
+    "email": "r.castro@entel.cl",
+    "cargo": "Técnico Especialista",
+    "area": "Soporte",
+    "rut": "18.901.234-5",
+    "fechaIngreso": "2022-07-01",
+    "estado": "activo",
+    "puntos": 340,
+    "compras": []
+  }
+]

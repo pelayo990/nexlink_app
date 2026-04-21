@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ev1",
+    "marcaId": "m1",
+    "nombre": "Samsung Tech Flash #8",
+    "descripcion": "Evento exclusivo con los mejores productos tecnológicos Samsung. Descuentos hasta 40% en televisores, tablets y audio.",
+    "banner": "samsung-banner",
+    "fechaInicio": "2024-09-10T09:00:00",
+    "fechaFin": "2024-09-12T23:59:59",
+    "estado": "activo",
+    "empresasInvitadas": ["e1", "e2", "e3"],
+    "productosIds": ["p1", "p2", "p3"],
+    "estadisticas": {
+      "totalVisitas": 1840,
+      "totalCompras": 312,
+      "montoTotal": 142800000,
+      "colaboradoresUnicos": 628
+    },
+    "destacado": true,
+    "tipo": "flash",
+    "maxComprasPorColaborador": 2
+  },
+  {
+    "id": "ev2",
+    "marcaId": "m2",
+    "nombre": "Falabella Hogar & Moda",
+    "descripcion": "Liquidación de temporada con productos seleccionados de hogar y moda. Precios únicos para colaboradores.",
+    "banner": "falabella-banner",
+    "fechaInicio": "2024-09-08T09:00:00",
+    "fechaFin": "2024-09-15T23:59:59",
+    "estado": "activo",
+    "empresasInvitadas": ["e1", "e2", "e3", "e4"],
+    "productosIds": ["p4", "p5", "p6"],
+    "estadisticas": {
+      "totalVisitas": 3210,
+      "totalCompras": 891,
+      "montoTotal": 68400000,
+      "colaboradoresUnicos": 1240
+    },
+    "destacado": true,
+    "tipo": "flash",
+    "maxComprasPorColaborador": 3
+  },
+  {
+    "id": "ev3",
+    "marcaId": "m3",
+    "nombre": "Adidas Sport Week",
+    "descripcion": "Semana deportiva Adidas con descuentos especiales en calzado y ropa de entrenamiento de alta performance.",
+    "banner": "adidas-banner",
+    "fechaInicio": "2024-09-20T09:00:00",
+    "fechaFin": "2024-09-27T23:59:59",
+    "estado": "proximo",
+    "empresasInvitadas": ["e1", "e2"],
+    "productosIds": ["p7", "p8"],
+    "estadisticas": {
+      "totalVisitas": 0,
+      "totalCompras": 0,
+      "montoTotal": 0,
+      "colaboradoresUnicos": 0
+    },
+    "destacado": false,
+    "tipo": "flash",
+    "maxComprasPorColaborador": 2
+  },
+  {
+    "id": "ev4",
+    "marcaId": "m1",
+    "nombre": "Samsung Back to School",
+    "descripcion": "Evento especial back to school con notebooks y tablets Samsung a precios únicos.",
+    "banner": "samsung-bts",
+    "fechaInicio": "2024-07-15T09:00:00",
+    "fechaFin": "2024-07-18T23:59:59",
+    "estado": "finalizado",
+    "empresasInvitadas": ["e1", "e3"],
+    "productosIds": ["p2"],
+    "estadisticas": {
+      "totalVisitas": 2100,
+      "totalCompras": 445,
+      "montoTotal": 89200000,
+      "colaboradoresUnicos": 890
+    },
+    "destacado": false,
+    "tipo": "flash",
+    "maxComprasPorColaborador": 1
+  }
+]

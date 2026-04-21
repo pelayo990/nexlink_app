@@ -1,0 +1,82 @@
+[
+  {
+    "id": "m1",
+    "nombre": "Samsung Chile",
+    "logo": "Samsung",
+    "categoria": "Electrónica",
+    "descripcion": "Líder global en tecnología y electrónica de consumo",
+    "contacto": "carolina@samsung.cl",
+    "telefono": "+56 2 2345 6789",
+    "rut": "96.645.020-4",
+    "estado": "activo",
+    "plan": "premium",
+    "fechaIngreso": "2024-01-15",
+    "statsVentas": {
+      "totalProductosPublicados": 24,
+      "totalEventos": 8,
+      "ventasTotales": 45200000,
+      "colaboradoresAlcanzados": 1240,
+      "tasaConvercion": 34
+    }
+  },
+  {
+    "id": "m2",
+    "nombre": "Falabella",
+    "logo": "Falabella",
+    "categoria": "Retail",
+    "descripcion": "Tienda por departamentos con amplio catálogo de moda y hogar",
+    "contacto": "ana@falabella.cl",
+    "telefono": "+56 2 2380 0000",
+    "rut": "76.023.310-3",
+    "estado": "activo",
+    "plan": "standard",
+    "fechaIngreso": "2024-02-20",
+    "statsVentas": {
+      "totalProductosPublicados": 48,
+      "totalEventos": 12,
+      "ventasTotales": 82400000,
+      "colaboradoresAlcanzados": 3560,
+      "tasaConvercion": 41
+    }
+  },
+  {
+    "id": "m3",
+    "nombre": "Adidas Chile",
+    "logo": "Adidas",
+    "categoria": "Deportes",
+    "descripcion": "Equipamiento deportivo y lifestyle de alta performance",
+    "contacto": "ventas@adidas.cl",
+    "telefono": "+56 2 2999 0000",
+    "rut": "96.701.100-8",
+    "estado": "activo",
+    "plan": "premium",
+    "fechaIngreso": "2024-03-05",
+    "statsVentas": {
+      "totalProductosPublicados": 36,
+      "totalEventos": 6,
+      "ventasTotales": 28900000,
+      "colaboradoresAlcanzados": 890,
+      "tasaConvercion": 28
+    }
+  },
+  {
+    "id": "m4",
+    "nombre": "Nestlé Chile",
+    "logo": "Nestlé",
+    "categoria": "Alimentos",
+    "descripcion": "Productos alimenticios y bebidas de calidad premium",
+    "contacto": "corp@nestle.cl",
+    "telefono": "+56 2 2338 7000",
+    "rut": "90.703.000-6",
+    "estado": "pendiente",
+    "plan": "standard",
+    "fechaIngreso": "2024-08-10",
+    "statsVentas": {
+      "totalProductosPublicados": 0,
+      "totalEventos": 0,
+      "ventasTotales": 0,
+      "colaboradoresAlcanzados": 0,
+      "tasaConvercion": 0
+    }
+  }
+]

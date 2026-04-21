@@ -1,0 +1,57 @@
+[
+  {
+    "id": "u1",
+    "nombre": "Admin NexLink",
+    "email": "admin@nexlink.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "admin",
+    "avatar": "AN"
+  },
+  {
+    "id": "u2",
+    "nombre": "Carolina López",
+    "email": "carolina@samsung.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "marca",
+    "marcaId": "m1",
+    "avatar": "CL"
+  },
+  {
+    "id": "u3",
+    "nombre": "Roberto Fuentes",
+    "email": "rrhh@bancochile.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "empresa",
+    "empresaId": "e1",
+    "avatar": "RF"
+  },
+  {
+    "id": "u4",
+    "nombre": "María Fernández",
+    "email": "maria@bancochile.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "colaborador",
+    "empresaId": "e1",
+    "colaboradorId": "c1",
+    "avatar": "MF"
+  },
+  {
+    "id": "u5",
+    "nombre": "Pedro Soto",
+    "email": "pedro@entel.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "colaborador",
+    "empresaId": "e2",
+    "colaboradorId": "c2",
+    "avatar": "PS"
+  },
+  {
+    "id": "u6",
+    "nombre": "Ana González",
+    "email": "ana@falabella.cl",
+    "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+    "rol": "marca",
+    "marcaId": "m2",
+    "avatar": "AG"
+  }
+]

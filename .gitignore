@@ -1,0 +1,9 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+coverage/
+
+# Salesforce DX — generado por extensiones de VS Code, no parte del proyecto
+.sfdx/
