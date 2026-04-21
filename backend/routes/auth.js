@@ -87,3 +87,29 @@ router.post('/cambiar-password', async (req, res) => {
 
   res.json({ message: 'Contraseña actualizada exitosamente' });
 });
+
+// POST /api/auth/registro
+router.post('/registro', async (req, res) => {
+  const { nombre, email, password, rol, marcaId, empresaId } = req.body;
+
+  if (!nombre || !email || !password || !rol)
+    return res.status(400).json({ error: 'Nombre, email, contraseña y rol son obligatorios' });
+  if (password.length < 6)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+  if (!['marca', 'empresa'].includes(rol))
+    return res.status(400).json({ error: 'Rol no permitido para registro público' });
+
+  const existe = await prisma.user.findUnique({ where: { email } });
+  if (existe) return res.status(409).json({ error: 'Ya existe una cuenta con ese email' });
+
+  const hash = await bcrypt.hash(password, 10);
+  const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
+
+  const user = await prisma.user.create({
+    data: { nombre, email, password: hash, rol, avatar, marcaId: marcaId || null, empresaId: empresaId || null },
+  });
+
+  const payload = { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol, avatar: user.avatar, marcaId: user.marcaId, empresaId: user.empresaId, colaboradorId: null };
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
+  res.status(201).json({ token, user: payload });
+});

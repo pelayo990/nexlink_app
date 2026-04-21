@@ -12,6 +12,7 @@ import AdminEmpresas from './pages/admin/Empresas';
 import AdminEventos from './pages/admin/Eventos';
 import AdminColaboradores from './pages/admin/Colaboradores';
 import Perfil from './pages/Perfil';
+import Registro from './pages/Registro';
 import AdminReportes from './pages/admin/Reportes';
 
 import MarcaDashboard from './pages/marca/Dashboard';
@@ -59,6 +60,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
           <Route path="/" element={<RootRedirect />} />
 
           {/* Admin */}
