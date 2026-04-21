@@ -14,44 +14,21 @@ model User {
   password      String
   rol           Rol
   avatar        String?
-  marcaId       String?
   empresaId     String?
   colaboradorId String?
-  createdAt     DateTime     @default(now())
+  emailVerificado    Boolean   @default(false)
+  tokenVerificacion  String?   @unique
+  tokenExpira        DateTime?
+  createdAt          DateTime  @default(now())
 
-  marca         Marca?       @relation(fields: [marcaId], references: [id])
   empresa       Empresa?     @relation(fields: [empresaId], references: [id])
   colaborador   Colaborador? @relation(fields: [colaboradorId], references: [id])
 }
 
 enum Rol {
   admin
-  marca
   empresa
   colaborador
-}
-
-model Marca {
-  id                       String     @id @default(cuid())
-  nombre                   String
-  logo                     String?
-  categoria                String
-  descripcion              String?
-  contacto                 String?
-  telefono                 String?
-  rut                      String?    @unique
-  estado                   Estado     @default(activo)
-  plan                     Plan       @default(standard)
-  fechaIngreso             DateTime   @default(now())
-  totalProductosPublicados Int        @default(0)
-  totalEventos             Int        @default(0)
-  ventasTotales            Float      @default(0)
-  colaboradoresAlcanzados  Int        @default(0)
-  tasaConvercion           Float      @default(0)
-
-  usuarios      User[]
-  productos     Producto[]
-  eventos       Evento[]
 }
 
 model Empresa {
@@ -68,6 +45,7 @@ model Empresa {
   estado               Estado          @default(activo)
   plan                 Plan            @default(standard)
   fechaIngreso         DateTime        @default(now())
+  dominiosPermitidos   String[]        
   eventosParticipados  Int             @default(0)
   comprasTotales       Float           @default(0)
   ahorroColaboradores  Float           @default(0)
@@ -76,6 +54,8 @@ model Empresa {
   usuarios              User[]
   colaboradores         Colaborador[]
   eventos               EventoEmpresa[]
+  eventosDirectos       Evento[]
+  productos             Producto[]
 }
 
 model Colaborador {
@@ -97,7 +77,7 @@ model Colaborador {
 
 model Evento {
   id                       String          @id @default(cuid())
-  marcaId                  String
+  empresaId                String
   nombre                   String
   descripcion              String?
   banner                   String?
@@ -112,7 +92,7 @@ model Evento {
   montoTotal               Float           @default(0)
   colaboradoresUnicos      Int             @default(0)
 
-  marca      Marca           @relation(fields: [marcaId], references: [id])
+  empresa    Empresa         @relation(fields: [empresaId], references: [id])
   productos  Producto[]
   empresas   EventoEmpresa[]
   compras    Compra[]
@@ -130,7 +110,7 @@ model EventoEmpresa {
 
 model Producto {
   id             String    @id @default(cuid())
-  marcaId        String
+  empresaId      String
   eventoId       String?
   nombre         String
   descripcion    String?
@@ -147,7 +127,7 @@ model Producto {
   tags           String[]
   visitas        Int       @default(0)
 
-  marca    Marca     @relation(fields: [marcaId], references: [id])
+  empresa  Empresa   @relation(fields: [empresaId], references: [id])
   evento   Evento?   @relation(fields: [eventoId], references: [id])
   compras  Compra[]
 }

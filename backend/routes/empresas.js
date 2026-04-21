@@ -27,3 +27,15 @@ router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => 
 });
 
 module.exports = router;
+
+// POST /api/empresas/:id/dominios
+router.post('/:id/dominios', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const { dominios } = req.body;
+  if (!Array.isArray(dominios)) return res.status(400).json({ error: 'dominios debe ser un array' });
+
+  const empresa = await prisma.empresa.update({
+    where: { id: req.params.id },
+    data: { dominiosPermitidos: dominios.map(d => d.toLowerCase().trim()).filter(Boolean) },
+  });
+  res.json(empresa);
+});

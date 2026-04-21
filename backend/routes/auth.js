@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
+const crypto = require('crypto');
+const { enviarVerificacion, enviarBienvenida } = require('../services/email');
 const prisma = new PrismaClient();
 
 
@@ -88,12 +90,6 @@ router.post('/cambiar-password', async (req, res) => {
   res.json({ message: 'Contraseña actualizada exitosamente' });
 });
 
-// POST /api/auth/registro
-router.post('/registro', async (req, res) => {
-  const { nombre, email, password, rol, marcaId, empresaId } = req.body;
-
-  if (!nombre || !email || !password || !rol)
-    return res.status(400).json({ error: 'Nombre, email, contraseña y rol son obligatorios' });
   if (password.length < 6)
     return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
   if (!['marca', 'empresa'].includes(rol))
@@ -112,4 +108,83 @@ router.post('/registro', async (req, res) => {
   const payload = { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol, avatar: user.avatar, marcaId: user.marcaId, empresaId: user.empresaId, colaboradorId: null };
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
   res.status(201).json({ token, user: payload });
+});
+
+// POST /api/auth/registro — solo colaboradores
+router.post('/registro', async (req, res) => {
+  const { nombre, email, password, rut, telefono, cargo } = req.body;
+
+  if (!nombre || !email || !password)
+    return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
+  if (password.length < 6)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+
+  // Verificar dominio
+  const dominio = email.split('@')[1];
+  if (!dominio) return res.status(400).json({ error: 'Email inválido' });
+
+  const empresa = await prisma.empresa.findFirst({
+    where: { dominiosPermitidos: { has: dominio }, estado: 'activo' },
+  });
+  if (!empresa)
+    return res.status(400).json({ error: 'Tu empresa no está registrada en NexLink. Contacta a tu área de RRHH.' });
+
+  const existe = await prisma.user.findUnique({ where: { email } });
+  if (existe) return res.status(409).json({ error: 'Ya existe una cuenta con ese email' });
+
+  const hash = await bcrypt.hash(password, 10);
+  const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenExpira = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+  // Crear colaborador
+  const colaborador = await prisma.colaborador.create({
+    data: { empresaId: empresa.id, nombre, email, cargo: cargo || null, rut: rut || null, estado: 'activo', puntos: 0 },
+  });
+
+  // Crear usuario sin verificar
+  await prisma.user.create({
+    data: {
+      nombre, email, password: hash, rol: 'colaborador', avatar,
+      empresaId: empresa.id, colaboradorId: colaborador.id,
+      emailVerificado: false, tokenVerificacion: token, tokenExpira,
+    },
+  });
+
+  // Enviar email de verificación
+  try {
+    await enviarVerificacion({ nombre, email, token });
+  } catch (e) {
+    console.error('Error enviando email:', e);
+  }
+
+  res.status(201).json({
+    message: `Te enviamos un email a ${email}. Confirma tu cuenta para acceder al marketplace.`,
+    empresa: empresa.nombre,
+  });
+});
+
+// GET /api/auth/verificar?token=xxx
+router.get('/verificar', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ error: 'Token requerido' });
+
+  const user = await prisma.user.findUnique({ where: { tokenVerificacion: token } });
+  if (!user) return res.status(400).json({ error: 'Token inválido o ya usado' });
+  if (user.tokenExpira < new Date()) return res.status(400).json({ error: 'Token expirado. Regístrate nuevamente.' });
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerificado: true, tokenVerificacion: null, tokenExpira: null },
+  });
+
+  // Enviar email de bienvenida
+  try {
+    const empresa = await prisma.empresa.findUnique({ where: { id: user.empresaId } });
+    await enviarBienvenida({ nombre: user.nombre, email: user.email, empresa: empresa?.nombre });
+  } catch (e) {
+    console.error('Error enviando bienvenida:', e);
+  }
+
+  res.json({ message: '¡Email verificado! Ya puedes iniciar sesión.', verificado: true });
 });

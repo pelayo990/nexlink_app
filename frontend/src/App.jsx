@@ -13,6 +13,7 @@ import AdminEventos from './pages/admin/Eventos';
 import AdminColaboradores from './pages/admin/Colaboradores';
 import Perfil from './pages/Perfil';
 import Registro from './pages/Registro';
+import VerificarEmail from './pages/VerificarEmail';
 import AdminReportes from './pages/admin/Reportes';
 
 import MarcaDashboard from './pages/marca/Dashboard';
@@ -61,6 +62,7 @@ export default function App() {
           <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/verificar-email" element={<VerificarEmail />} />
           <Route path="/" element={<RootRedirect />} />
 
           {/* Admin */}
