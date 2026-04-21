@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Search, Zap, Clock, Star, ShoppingCart, X, CheckCircle } from 'lucide-react';
+import { Search, Zap, Clock, ShoppingCart, X, CheckCircle, AlertCircle } from 'lucide-react';
 import Topbar from '../../components/Topbar';
-import EventoCard from '../../components/EventoCard';
 import ProductCard from '../../components/ProductCard';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -31,7 +30,7 @@ function CountdownTimer({ fechaFin }) {
   );
 }
 
-function CartModal({ items, onClose, onComprar }) {
+function CartModal({ items, onClose, onComprar, loading, error }) {
   const total = items.reduce((s, i) => s + i.precioEvento, 0);
   const ahorro = items.reduce((s, i) => s + (i.precioOriginal - i.precioEvento), 0);
 
@@ -43,6 +42,13 @@ function CartModal({ items, onClose, onComprar }) {
           <h2 style={{ fontSize: 18, fontWeight: 700 }}>Tu Carrito ({items.length})</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={20} /></button>
         </div>
+
+        {error && (
+          <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '12px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            {error}
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="empty-state">
@@ -77,8 +83,8 @@ function CartModal({ items, onClose, onComprar }) {
               </div>
             </div>
 
-            <button className="btn btn-primary" style={{ width: '100%', height: 48, fontSize: 16 }} onClick={onComprar}>
-              <CheckCircle size={18} /> Confirmar Compra
+            <button className="btn btn-primary" style={{ width: '100%', height: 48, fontSize: 16 }} onClick={onComprar} disabled={loading}>
+              <CheckCircle size={18} /> {loading ? 'Procesando...' : 'Confirmar Compra'}
             </button>
           </>
         )}
@@ -91,6 +97,7 @@ export default function Marketplace() {
   const { user } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [misCompras, setMisCompras] = useState([]);
   const [eventoSel, setEventoSel] = useState(null);
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState('Todas');
@@ -98,20 +105,26 @@ export default function Marketplace() {
   const [showCarrito, setShowCarrito] = useState(false);
   const [compraOk, setCompraOk] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [comprando, setComprando] = useState(false);
+  const [errorCompra, setErrorCompra] = useState('');
   const [dashData, setDashData] = useState(null);
 
-  useEffect(() => {
+  const cargarDatos = () => {
     Promise.all([
       api.get('/eventos'),
       api.get('/productos'),
-    ]).then(([evRes, prRes]) => {
+      api.get('/compras/mis-compras'),
+    ]).then(([evRes, prRes, comprasRes]) => {
       setEventos(evRes.data.filter(e => e.estado === 'activo'));
       setProductos(prRes.data);
+      setMisCompras(comprasRes.data.map(c => c.productoId));
     }).finally(() => setLoading(false));
 
     if (user?.colaboradorId)
       api.get(`/dashboard/colaborador/${user.colaboradorId}`).then(r => setDashData(r.data));
-  }, [user]);
+  };
+
+  useEffect(() => { cargarDatos(); }, [user]);
 
   const productosFiltrados = productos.filter(p => {
     const matchEvento = eventoSel ? p.eventoId === eventoSel.id : true;
@@ -120,11 +133,17 @@ export default function Marketplace() {
     return matchEvento && matchSearch && matchCat;
   });
 
+  const estaEnCarrito = (id) => carrito.some(i => i.id === id);
+  const yaComprado = (id) => misCompras.includes(id);
+
   const agregarCarrito = (producto) => {
+    if (estaEnCarrito(producto.id) || yaComprado(producto.id)) return;
     setCarrito(c => [...c, producto]);
   };
 
   const confirmarCompra = async () => {
+    setComprando(true);
+    setErrorCompra('');
     try {
       await Promise.all(
         carrito.map(item =>
@@ -134,9 +153,12 @@ export default function Marketplace() {
       setCarrito([]);
       setShowCarrito(false);
       setCompraOk(true);
+      cargarDatos();
       setTimeout(() => setCompraOk(false), 3500);
     } catch (e) {
-      alert('Error al procesar la compra. Intenta nuevamente.');
+      setErrorCompra(e.response?.data?.error || 'Error al procesar la compra. Intenta nuevamente.');
+    } finally {
+      setComprando(false);
     }
   };
 
@@ -145,7 +167,7 @@ export default function Marketplace() {
   return (
     <>
       <Topbar title="Marketplace" subtitle="Eventos exclusivos para colaboradores" />
-      {showCarrito && <CartModal items={carrito} onClose={() => setShowCarrito(false)} onComprar={confirmarCompra} />}
+      {showCarrito && <CartModal items={carrito} onClose={() => { setShowCarrito(false); setErrorCompra(''); }} onComprar={confirmarCompra} loading={comprando} error={errorCompra} />}
 
       {compraOk && (
         <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 999, background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10, boxShadow: 'var(--shadow-lg)' }}>
@@ -185,34 +207,17 @@ export default function Marketplace() {
             <span className="badge badge-warning">{eventos.length} disponibles</span>
           </div>
           <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
-            {/* All button */}
-            <div
-              onClick={() => setEventoSel(null)}
-              style={{
-                flexShrink: 0, padding: '14px 20px', borderRadius: 12, cursor: 'pointer',
-                border: `2px solid ${!eventoSel ? 'var(--primary)' : 'var(--border)'}`,
-                background: !eventoSel ? '#EEF2FF' : '#fff', transition: 'all .15s', minWidth: 140,
-              }}>
+            <div onClick={() => setEventoSel(null)} style={{ flexShrink: 0, padding: '14px 20px', borderRadius: 12, cursor: 'pointer', border: `2px solid ${!eventoSel ? 'var(--primary)' : 'var(--border)'}`, background: !eventoSel ? '#EEF2FF' : '#fff', transition: 'all .15s', minWidth: 140 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4 }}>Ver todo</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: !eventoSel ? 'var(--primary)' : 'var(--text-primary)' }}>
-                {productos.length} productos
-              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: !eventoSel ? 'var(--primary)' : 'var(--text-primary)' }}>{productos.length} productos</div>
             </div>
             {eventos.map(ev => (
-              <div key={ev.id}
-                onClick={() => setEventoSel(eventoSel?.id === ev.id ? null : ev)}
-                style={{
-                  flexShrink: 0, padding: '14px 20px', borderRadius: 12, cursor: 'pointer',
-                  border: `2px solid ${eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--border)'}`,
-                  background: eventoSel?.id === ev.id ? '#EEF2FF' : '#fff', transition: 'all .15s', minWidth: 200,
-                }}>
+              <div key={ev.id} onClick={() => setEventoSel(eventoSel?.id === ev.id ? null : ev)} style={{ flexShrink: 0, padding: '14px 20px', borderRadius: 12, cursor: 'pointer', border: `2px solid ${eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--border)'}`, background: eventoSel?.id === ev.id ? '#EEF2FF' : '#fff', transition: 'all .15s', minWidth: 200 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)' }}>{ev.marca?.nombre}</span>
                   <CountdownTimer fechaFin={ev.fechaFin} />
                 </div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--text-primary)' }}>
-                  {ev.nombre}
-                </div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--text-primary)' }}>{ev.nombre}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{ev.totalProductos} productos</div>
               </div>
             ))}
@@ -229,15 +234,7 @@ export default function Marketplace() {
             </div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {CATEGORIAS.map(cat => (
-                <button key={cat}
-                  onClick={() => setCategoria(cat)}
-                  style={{
-                    padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                    border: `1.5px solid ${categoria === cat ? 'var(--primary)' : 'var(--border)'}`,
-                    background: categoria === cat ? 'var(--primary)' : '#fff',
-                    color: categoria === cat ? '#fff' : 'var(--text-secondary)',
-                    transition: 'all .15s',
-                  }}>
+                <button key={cat} onClick={() => setCategoria(cat)} style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: `1.5px solid ${categoria === cat ? 'var(--primary)' : 'var(--border)'}`, background: categoria === cat ? 'var(--primary)' : '#fff', color: categoria === cat ? '#fff' : 'var(--text-secondary)', transition: 'all .15s' }}>
                   {cat}
                 </button>
               ))}
@@ -261,7 +258,17 @@ export default function Marketplace() {
         ) : (
           <div className="grid-4">
             {productosFiltrados.map(p => (
-              <ProductCard key={p.id} producto={p} onComprar={agregarCarrito} />
+              <div key={p.id} style={{ position: 'relative' }}>
+                <ProductCard producto={p} onComprar={agregarCarrito} />
+                {(estaEnCarrito(p.id) || yaComprado(p.id)) && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.85)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 6 }}>
+                    <CheckCircle size={28} color="#10B981" />
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>
+                      {yaComprado(p.id) ? 'Ya comprado' : 'En carrito'}
+                    </span>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

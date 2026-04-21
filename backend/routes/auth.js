@@ -4,8 +4,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
-
 const prisma = new PrismaClient();
+
+
+
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET no definido en .env');
@@ -57,3 +59,31 @@ router.get('/me', (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/auth/cambiar-password
+router.post('/cambiar-password', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  let decoded;
+  try { decoded = jwt.verify(token, JWT_SECRET); }
+  catch { return res.status(403).json({ error: 'Token inválido' }); }
+
+  const { passwordActual, passwordNueva } = req.body;
+  if (!passwordActual || !passwordNueva)
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  if (passwordNueva.length < 6)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+
+  const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+  if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+  const valid = await bcrypt.compare(passwordActual, user.password);
+  if (!valid) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+
+  const hash = await bcrypt.hash(passwordNueva, 10);
+  await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
+
+  res.json({ message: 'Contraseña actualizada exitosamente' });
+});

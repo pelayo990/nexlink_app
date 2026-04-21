@@ -11,6 +11,7 @@ import AdminMarcas from './pages/admin/Marcas';
 import AdminEmpresas from './pages/admin/Empresas';
 import AdminEventos from './pages/admin/Eventos';
 import AdminColaboradores from './pages/admin/Colaboradores';
+import Perfil from './pages/Perfil';
 import AdminReportes from './pages/admin/Reportes';
 
 import MarcaDashboard from './pages/marca/Dashboard';
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="/marketplace" element={<ProtectedRoute roles={['colaborador']}><AppLayout><Marketplace /></AppLayout></ProtectedRoute>} />
           <Route path="/marketplace/mis-compras" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MisCompras /></AppLayout></ProtectedRoute>} />
 
+          <Route path="/perfil" element={<ProtectedRoute roles={['admin','marca','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
