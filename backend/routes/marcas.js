@@ -1,19 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const marcas = require('../data/marcas.json');
+const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
-router.get('/', authMiddleware, (req, res) => {
-  if (req.user.rol === 'marca') {
-    const m = marcas.find(m => m.id === req.user.marcaId);
-    return res.json(m ? [m] : []);
-  }
+const prisma = new PrismaClient();
+
+router.get('/', authMiddleware, async (req, res) => {
+  const marcas = await prisma.marca.findMany({ orderBy: { nombre: 'asc' } });
   res.json(marcas);
 });
 
-router.get('/:id', authMiddleware, (req, res) => {
-  const marca = marcas.find(m => m.id === req.params.id);
+router.get('/:id', authMiddleware, async (req, res) => {
+  const marca = await prisma.marca.findUnique({ where: { id: req.params.id } });
   if (!marca) return res.status(404).json({ error: 'Marca no encontrada' });
+  res.json(marca);
+});
+
+router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const marca = await prisma.marca.create({ data: req.body });
+  res.status(201).json(marca);
+});
+
+router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const marca = await prisma.marca.update({ where: { id: req.params.id }, data: req.body });
   res.json(marca);
 });
 

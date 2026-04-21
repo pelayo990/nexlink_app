@@ -1,19 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const empresas = require('../data/empresas.json');
-const { authMiddleware } = require('../middleware/auth');
+const { PrismaClient } = require('@prisma/client');
+const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
-router.get('/', authMiddleware, (req, res) => {
-  if (req.user.rol === 'empresa') {
-    const e = empresas.find(e => e.id === req.user.empresaId);
-    return res.json(e ? [e] : []);
-  }
+const prisma = new PrismaClient();
+
+router.get('/', authMiddleware, async (req, res) => {
+  const empresas = await prisma.empresa.findMany({ orderBy: { nombre: 'asc' } });
   res.json(empresas);
 });
 
-router.get('/:id', authMiddleware, (req, res) => {
-  const empresa = empresas.find(e => e.id === req.params.id);
+router.get('/:id', authMiddleware, async (req, res) => {
+  const empresa = await prisma.empresa.findUnique({ where: { id: req.params.id } });
   if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
+  res.json(empresa);
+});
+
+router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const empresa = await prisma.empresa.create({ data: req.body });
+  res.status(201).json(empresa);
+});
+
+router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const empresa = await prisma.empresa.update({ where: { id: req.params.id }, data: req.body });
   res.json(empresa);
 });
 

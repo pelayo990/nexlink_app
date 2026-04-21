@@ -3,30 +3,27 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
-const users = require('../data/users.json');
+const { PrismaClient } = require('@prisma/client');
 
-// Falla explícitamente si no está definido
+const prisma = new PrismaClient();
+
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET no está definido. Crea un archivo .env con JWT_SECRET=<secreto>');
-}
+if (!JWT_SECRET) throw new Error('JWT_SECRET no definido en .env');
 
-// Máximo 10 intentos de login cada 15 minutos por IP
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  message: { error: 'Demasiados intentos de inicio de sesión. Intenta nuevamente en 15 minutos.' },
+  message: { error: 'Demasiados intentos. Intenta en 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// POST /api/auth/login
 router.post('/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
     return res.status(400).json({ error: 'Email y contraseña requeridos' });
 
-  const user = users.find(u => u.email === email);
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
 
   const valid = await bcrypt.compare(password, user.password);
@@ -47,7 +44,6 @@ router.post('/login', loginLimiter, async (req, res) => {
   res.json({ token, user: payload });
 });
 
-// GET /api/auth/me
 router.get('/me', (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];

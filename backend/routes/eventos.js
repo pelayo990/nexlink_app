@@ -1,38 +1,56 @@
 const express = require('express');
 const router = express.Router();
-const eventos = require('../data/eventos.json');
-const marcas = require('../data/marcas.json');
-const productos = require('../data/productos.json');
+const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
 
-router.get('/', authMiddleware, (req, res) => {
-  const { rol, marcaId, empresaId } = req.user;
-  let result = eventos;
+const prisma = new PrismaClient();
 
-  if (rol === 'marca') {
-    result = eventos.filter(e => e.marcaId === marcaId);
-  } else if (rol === 'empresa' || rol === 'colaborador') {
-    result = eventos.filter(e => e.empresasInvitadas.includes(empresaId));
+router.get('/', authMiddleware, async (req, res) => {
+  const { rol, marcaId, empresaId } = req.user;
+
+  const where = {};
+  if (rol === 'marca') where.marcaId = marcaId;
+  if (rol === 'empresa' || rol === 'colaborador') {
+    where.empresas = { some: { empresaId } };
   }
 
-  // Enrich with marca info
-  const enriched = result.map(ev => ({
+  const eventos = await prisma.evento.findMany({
+    where,
+    include: { marca: true, _count: { select: { productos: true } } },
+    orderBy: { fechaInicio: 'desc' },
+  });
+
+  const enriched = eventos.map(ev => ({
     ...ev,
-    marca: marcas.find(m => m.id === ev.marcaId) || null,
-    totalProductos: ev.productosIds.length,
+    totalProductos: ev._count.productos,
+    _count: undefined,
   }));
 
   res.json(enriched);
 });
 
-router.get('/:id', authMiddleware, (req, res) => {
-  const evento = eventos.find(e => e.id === req.params.id);
+router.get('/:id', authMiddleware, async (req, res) => {
+  const evento = await prisma.evento.findUnique({
+    where: { id: req.params.id },
+    include: { marca: true, productos: { include: { marca: true } }, empresas: { include: { empresa: true } } },
+  });
   if (!evento) return res.status(404).json({ error: 'Evento no encontrado' });
+  res.json(evento);
+});
 
-  const marca = marcas.find(m => m.id === evento.marcaId);
-  const productosEvento = productos.filter(p => evento.productosIds.includes(p.id));
-
-  res.json({ ...evento, marca, productos: productosEvento });
+router.post('/', authMiddleware, async (req, res) => {
+  const { empresasInvitadas, ...rest } = req.body;
+  const evento = await prisma.evento.create({
+    data: {
+      ...rest,
+      marcaId: req.user.marcaId || rest.marcaId,
+      empresas: empresasInvitadas
+        ? { create: empresasInvitadas.map(id => ({ empresaId: id })) }
+        : undefined,
+    },
+    include: { marca: true },
+  });
+  res.status(201).json(evento);
 });
 
 module.exports = router;

@@ -1,24 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const colaboradores = require('../data/colaboradores.json');
+const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
 
-router.get('/', authMiddleware, (req, res) => {
-  const { rol, empresaId, colaboradorId } = req.user;
-  if (rol === 'colaborador') {
-    const c = colaboradores.find(c => c.id === colaboradorId);
-    return res.json(c ? [c] : []);
-  }
-  if (rol === 'empresa') {
-    return res.json(colaboradores.filter(c => c.empresaId === empresaId));
-  }
+const prisma = new PrismaClient();
+
+router.get('/', authMiddleware, async (req, res) => {
+  const { rol, empresaId } = req.user;
+  const where = rol === 'empresa' ? { empresaId } : {};
+  const colaboradores = await prisma.colaborador.findMany({
+    where,
+    include: { compras: true },
+    orderBy: { nombre: 'asc' },
+  });
   res.json(colaboradores);
 });
 
-router.get('/:id', authMiddleware, (req, res) => {
-  const c = colaboradores.find(c => c.id === req.params.id);
-  if (!c) return res.status(404).json({ error: 'Colaborador no encontrado' });
-  res.json(c);
+router.get('/:id', authMiddleware, async (req, res) => {
+  const colaborador = await prisma.colaborador.findUnique({
+    where: { id: req.params.id },
+    include: { compras: { include: { producto: true, evento: true } } },
+  });
+  if (!colaborador) return res.status(404).json({ error: 'Colaborador no encontrado' });
+  res.json(colaborador);
 });
 
 module.exports = router;
