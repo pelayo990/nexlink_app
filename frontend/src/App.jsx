@@ -3,31 +3,28 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Pages
 import Login from './pages/Login';
+import Registro from './pages/Registro';
+import VerificarEmail from './pages/VerificarEmail';
+import Perfil from './pages/Perfil';
 
 import AdminDashboard from './pages/admin/Dashboard';
-import AdminMarcas from './pages/admin/Marcas';
 import AdminEmpresas from './pages/admin/Empresas';
 import AdminEventos from './pages/admin/Eventos';
 import AdminColaboradores from './pages/admin/Colaboradores';
-import Perfil from './pages/Perfil';
-import Registro from './pages/Registro';
-import VerificarEmail from './pages/VerificarEmail';
 import AdminReportes from './pages/admin/Reportes';
 
-import MarcaDashboard from './pages/marca/Dashboard';
-import MarcaProductos from './pages/marca/Productos';
-
 import EmpresaDashboard from './pages/empresa/Dashboard';
+import EmpresaProductos from './pages/empresa/Productos';
+import EmpresaEventos from './pages/empresa/Eventos';
 import EmpresaColaboradores from './pages/empresa/Colaboradores';
+import EmpresaReportes from './pages/empresa/Reportes';
 
 import Marketplace from './pages/colaborador/Marketplace';
 import MisCompras from './pages/colaborador/MisCompras';
 
 const ROL_HOME = {
   admin: '/admin',
-  marca: '/marca',
   empresa: '/empresa',
   colaborador: '/marketplace',
 };
@@ -60,38 +57,36 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/verificar-email" element={<VerificarEmail />} />
-          <Route path="/" element={<RootRedirect />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/verificar-email" element={<VerificarEmail />} />
+            <Route path="/" element={<RootRedirect />} />
 
-          {/* Admin */}
-          <Route path="/admin" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminDashboard /></AppLayout></ProtectedRoute>} />
-          <Route path="/admin/marcas" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminMarcas /></AppLayout></ProtectedRoute>} />
-          <Route path="/admin/empresas" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEmpresas /></AppLayout></ProtectedRoute>} />
-          <Route path="/admin/eventos" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEventos /></AppLayout></ProtectedRoute>} />
-          <Route path="/admin/colaboradores" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminColaboradores /></AppLayout></ProtectedRoute>} />
-          <Route path="/admin/reportes" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminReportes /></AppLayout></ProtectedRoute>} />
+            {/* Admin */}
+            <Route path="/admin" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminDashboard /></AppLayout></ProtectedRoute>} />
+            <Route path="/admin/empresas" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEmpresas /></AppLayout></ProtectedRoute>} />
+            <Route path="/admin/eventos" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminEventos /></AppLayout></ProtectedRoute>} />
+            <Route path="/admin/colaboradores" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminColaboradores /></AppLayout></ProtectedRoute>} />
+            <Route path="/admin/reportes" element={<ProtectedRoute roles={['admin']}><AppLayout><AdminReportes /></AppLayout></ProtectedRoute>} />
 
-          {/* Marca */}
-          <Route path="/marca" element={<ProtectedRoute roles={['marca']}><AppLayout><MarcaDashboard /></AppLayout></ProtectedRoute>} />
-          <Route path="/marca/productos" element={<ProtectedRoute roles={['marca']}><AppLayout><MarcaProductos /></AppLayout></ProtectedRoute>} />
-          <Route path="/marca/eventos" element={<ProtectedRoute roles={['marca', 'admin']}><AppLayout><AdminEventos /></AppLayout></ProtectedRoute>} />
+            {/* Empresa */}
+            <Route path="/empresa" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaDashboard /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/productos" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaProductos /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/eventos" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaEventos /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/colaboradores" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaColaboradores /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/reportes" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaReportes /></AppLayout></ProtectedRoute>} />
 
-          {/* Empresa */}
-          <Route path="/empresa" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaDashboard /></AppLayout></ProtectedRoute>} />
-          <Route path="/empresa/colaboradores" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaColaboradores /></AppLayout></ProtectedRoute>} />
-          <Route path="/empresa/eventos" element={<ProtectedRoute roles={['empresa']}><AppLayout><AdminEventos /></AppLayout></ProtectedRoute>} />
+            {/* Colaborador */}
+            <Route path="/marketplace" element={<ProtectedRoute roles={['colaborador']}><AppLayout><Marketplace /></AppLayout></ProtectedRoute>} />
+            <Route path="/marketplace/mis-compras" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MisCompras /></AppLayout></ProtectedRoute>} />
 
-          {/* Colaborador */}
-          <Route path="/marketplace" element={<ProtectedRoute roles={['colaborador']}><AppLayout><Marketplace /></AppLayout></ProtectedRoute>} />
-          <Route path="/marketplace/mis-compras" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MisCompras /></AppLayout></ProtectedRoute>} />
+            {/* Perfil — todos los roles */}
+            <Route path="/perfil" element={<ProtectedRoute roles={['admin','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />
 
-          <Route path="/perfil" element={<ProtectedRoute roles={['admin','marca','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

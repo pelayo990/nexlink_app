@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Users, Calendar, DollarSign, Star, TrendingUp } from 'lucide-react';
+import { Users, Calendar, DollarSign, Star } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import StatCard from '../../components/StatCard';
 import EventoCard from '../../components/EventoCard';
@@ -26,7 +26,6 @@ export default function EmpresaDashboard() {
     <>
       <Topbar title={`Portal ${empresa.nombre}`} subtitle="Gestiona los beneficios de tus colaboradores" />
       <div className="page-body">
-        {/* Stats */}
         <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
           <StatCard label="Colaboradores Activos" value={stats.colaboradoresActivos} icon={Users} color="#028090" changePct={3} change="este mes" />
           <StatCard label="Eventos Disponibles" value={stats.eventosDisponibles} icon={Calendar} color="#4F46E5" />
@@ -34,7 +33,6 @@ export default function EmpresaDashboard() {
           <StatCard label="Satisfacción" value={stats.satisfaccion} icon={Star} color="#F59E0B" suffix="%" />
         </div>
 
-        {/* Participación chart */}
         <div className="grid-2" style={{ marginBottom: 24 }}>
           <div className="card">
             <div className="section-title">Participación Mensual de Colaboradores</div>
@@ -55,7 +53,6 @@ export default function EmpresaDashboard() {
             </ResponsiveContainer>
           </div>
 
-          {/* Top colaboradores */}
           <div className="card">
             <div className="section-title">Top Colaboradores por Puntos</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -78,26 +75,20 @@ export default function EmpresaDashboard() {
           </div>
         </div>
 
-        {/* Eventos activos */}
         {eventosActivos.length > 0 && (
           <div style={{ marginBottom: 24 }}>
             <div className="section-title">Eventos Activos para tus Colaboradores</div>
             <div className="grid-3">
-              {eventosActivos.map(ev => (
-                <EventoCard key={ev.id} evento={ev} />
-              ))}
+              {eventosActivos.map(ev => <EventoCard key={ev.id} evento={ev} />)}
             </div>
           </div>
         )}
 
-        {/* Próximos eventos */}
         {eventosProximos.length > 0 && (
           <div>
             <div className="section-title">Próximos Eventos</div>
             <div className="grid-3">
-              {eventosProximos.map(ev => (
-                <EventoCard key={ev.id} evento={ev} />
-              ))}
+              {eventosProximos.map(ev => <EventoCard key={ev.id} evento={ev} />)}
             </div>
           </div>
         )}

@@ -6,17 +6,17 @@ const { authMiddleware } = require('../middleware/auth');
 const prisma = new PrismaClient();
 
 router.get('/', authMiddleware, async (req, res) => {
-  const { rol, marcaId } = req.user;
+  const { rol, empresaId } = req.user;
   const { eventoId, categoria } = req.query;
 
   const where = {};
-  if (rol === 'marca') where.marcaId = marcaId;
+  if (rol === 'empresa') where.empresaId = empresaId;
   if (eventoId) where.eventoId = eventoId;
   if (categoria) where.categoria = categoria;
 
   const productos = await prisma.producto.findMany({
     where,
-    include: { marca: true },
+    include: { empresa: true },
     orderBy: { nombre: 'asc' },
   });
   res.json(productos);
@@ -25,7 +25,7 @@ router.get('/', authMiddleware, async (req, res) => {
 router.get('/:id', authMiddleware, async (req, res) => {
   const producto = await prisma.producto.findUnique({
     where: { id: req.params.id },
-    include: { marca: true },
+    include: { empresa: true },
   });
   if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
   res.json(producto);
@@ -33,17 +33,18 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
   const producto = await prisma.producto.create({
-    data: { ...req.body, marcaId: req.user.marcaId },
-    include: { marca: true },
+    data: { ...req.body, empresaId: req.user.empresaId },
+    include: { empresa: true },
   });
   res.status(201).json(producto);
 });
 
 router.put('/:id', authMiddleware, async (req, res) => {
+  const { empresaId, ...rest } = req.body;
   const producto = await prisma.producto.update({
     where: { id: req.params.id },
-    data: req.body,
-    include: { marca: true },
+    data: rest,
+    include: { empresa: true },
   });
   res.json(producto);
 });

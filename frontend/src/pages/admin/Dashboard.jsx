@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Tag, Building2, Users, Calendar, TrendingUp, DollarSign, Activity, Award } from 'lucide-react';
+import { Building2, Users, Calendar, DollarSign, Activity, TrendingUp, Award } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import StatCard from '../../components/StatCard';
 import api from '../../services/api';
@@ -18,31 +18,27 @@ export default function AdminDashboard() {
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Cargando dashboard…</div>;
   if (!data) return null;
 
-  const { resumen, ventasMensuales, topMarcas, topEmpresas, eventosPorEstado } = data;
+  const { resumen, ventasMensuales, topEmpresas, eventosPorEstado } = data;
 
   return (
     <>
       <Topbar title="Dashboard General" subtitle="Vista ejecutiva de la plataforma NexLink" />
       <div className="page-body">
-        {/* Stats */}
         <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
-          <StatCard label="Marcas Activas" value={resumen.marcasActivas} icon={Tag} color="#4F46E5" changePct={12} change="vs mes anterior" />
-          <StatCard label="Empresas Activas" value={resumen.empresasActivas} icon={Building2} color="#7C3AED" changePct={8} change="vs mes anterior" />
+          <StatCard label="Empresas Activas" value={resumen.empresasActivas} icon={Building2} color="#4F46E5" changePct={8} change="vs mes anterior" />
           <StatCard label="Colaboradores" value={resumen.totalColaboradores} icon={Users} color="#06B6D4" changePct={24} change="vs mes anterior" />
           <StatCard label="Ventas Plataforma" value={resumen.ventasTotalesPlataforma} icon={DollarSign} color="#10B981" prefix="$" changePct={31} change="vs mes anterior" />
-        </div>
-
-        {/* Second row stats */}
-        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', marginBottom: 28 }}>
           <StatCard label="Eventos Activos" value={resumen.eventosActivos} icon={Activity} color="#F59E0B" />
-          <StatCard label="Eventos Totales" value={resumen.totalEventos} icon={Calendar} color="#EF4444" />
-          <StatCard label="Total Marcas" value={resumen.totalMarcas} icon={Tag} color="#8B5CF6" />
-          <StatCard label="Total Empresas" value={resumen.totalEmpresas} icon={Building2} color="#0EA5E9" />
         </div>
 
-        {/* Charts row */}
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', marginBottom: 28 }}>
+          <StatCard label="Total Empresas" value={resumen.totalEmpresas} icon={Building2} color="#7C3AED" />
+          <StatCard label="Eventos Totales" value={resumen.totalEventos} icon={Calendar} color="#EF4444" />
+          <StatCard label="Eventos Próximos" value={resumen.eventosPorEstado?.proximo || 0} icon={TrendingUp} color="#0EA5E9" />
+          <StatCard label="Eventos Finalizados" value={resumen.eventosPorEstado?.finalizado || 0} icon={Award} color="#8B5CF6" />
+        </div>
+
         <div className="grid-2" style={{ marginBottom: 24 }}>
-          {/* Sales chart */}
           <div className="card">
             <div className="section-title">Ventas Mensuales (CLP)</div>
             <ResponsiveContainer width="100%" height={240}>
@@ -65,15 +61,14 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
 
-          {/* Events by status */}
           <div className="card">
             <div className="section-title">Eventos por Estado</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40 }}>
               <PieChart width={180} height={180}>
                 <Pie data={[
-                  { name: 'Activo', value: eventosPorEstado.activo },
-                  { name: 'Próximo', value: eventosPorEstado.proximo },
-                  { name: 'Finalizado', value: eventosPorEstado.finalizado },
+                  { name: 'Activo', value: eventosPorEstado.activo || 0 },
+                  { name: 'Próximo', value: eventosPorEstado.proximo || 0 },
+                  { name: 'Finalizado', value: eventosPorEstado.finalizado || 0 },
                 ]} cx={85} cy={85} innerRadius={55} outerRadius={80} paddingAngle={3} dataKey="value">
                   {COLORS.map((c, i) => <Cell key={i} fill={c} />)}
                 </Pie>
@@ -81,9 +76,9 @@ export default function AdminDashboard() {
               </PieChart>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Activos', value: eventosPorEstado.activo, color: COLORS[0] },
-                  { label: 'Próximos', value: eventosPorEstado.proximo, color: COLORS[1] },
-                  { label: 'Finalizados', value: eventosPorEstado.finalizado, color: COLORS[2] },
+                  { label: 'Activos', value: eventosPorEstado.activo || 0, color: COLORS[0] },
+                  { label: 'Próximos', value: eventosPorEstado.proximo || 0, color: COLORS[1] },
+                  { label: 'Finalizados', value: eventosPorEstado.finalizado || 0, color: COLORS[2] },
                 ].map(s => (
                   <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: s.color, flexShrink: 0 }} />
@@ -96,72 +91,33 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Tables row */}
-        <div className="grid-2">
-          {/* Top Marcas */}
-          <div className="card">
-            <div className="section-title" style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Award size={16} color="var(--primary)" /> Top Marcas por Ventas
-              </div>
-            </div>
-            <div className="table-wrap">
-              <table>
-                <thead><tr><th>Marca</th><th>Eventos</th><th>Ventas</th></tr></thead>
-                <tbody>
-                  {topMarcas.map((m, i) => (
-                    <tr key={m.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: `hsl(${i * 60 + 220}, 70%, 55%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
-                            #{i + 1}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600 }}>{m.nombre}</div>
-                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{m.categoria}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td><span className="badge badge-info">{m.eventos}</span></td>
-                      <td style={{ fontWeight: 700, color: 'var(--success)' }}>${(m.ventas / 1000000).toFixed(1)}M</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="card">
+          <div className="section-title" style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <TrendingUp size={16} color="var(--primary)" /> Top Empresas por Compras
             </div>
           </div>
-
-          {/* Top Empresas */}
-          <div className="card">
-            <div className="section-title" style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TrendingUp size={16} color="var(--secondary)" /> Top Empresas por Compras
-              </div>
-            </div>
-            <div className="table-wrap">
-              <table>
-                <thead><tr><th>Empresa</th><th>Colaboradores</th><th>Compras</th></tr></thead>
-                <tbody>
-                  {topEmpresas.map((e, i) => (
-                    <tr key={e.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: `hsl(${i * 80 + 150}, 60%, 50%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800 }}>
-                            #{i + 1}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600 }}>{e.nombre}</div>
-                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{e.industria}</div>
-                          </div>
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Empresa</th><th>Industria</th><th>Colaboradores</th><th>Compras</th></tr></thead>
+              <tbody>
+                {topEmpresas.map((e, i) => (
+                  <tr key={e.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: `hsl(${i * 80 + 150}, 60%, 50%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800 }}>
+                          #{i + 1}
                         </div>
-                      </td>
-                      <td style={{ fontWeight: 600 }}>{e.colaboradores.toLocaleString('es-CL')}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${(e.compras / 1000000).toFixed(1)}M</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <span style={{ fontWeight: 600 }}>{e.nombre}</span>
+                      </div>
+                    </td>
+                    <td><span className="tag">{e.industria}</span></td>
+                    <td style={{ fontWeight: 600 }}>{e.colaboradores?.toLocaleString('es-CL')}</td>
+                    <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${(e.compras / 1000000).toFixed(1)}M</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

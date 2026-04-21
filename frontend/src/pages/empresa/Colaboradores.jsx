@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, UserPlus, Star, Download } from 'lucide-react';
+import { Search, Star, Download } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
@@ -23,19 +23,13 @@ export default function EmpresaColaboradores() {
       <Topbar title="Colaboradores" subtitle="Gestiona los colaboradores activos en NexLink" />
       <div className="page-body">
         <div className="page-header">
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
-                value={search} onChange={e => setSearch(e.target.value)} />
-            </div>
+          <div style={{ position: 'relative' }}>
+            <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
+              value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary"><Download size={15} /> Exportar</button>
-            <button className="btn btn-primary"><UserPlus size={15} /> Invitar Colaborador</button>
-          </div>
+          <button className="btn btn-secondary"><Download size={15} /> Exportar</button>
         </div>
-
         <div className="grid-4" style={{ marginBottom: 24 }}>
           {[
             { label: 'Total', value: colaboradores.length, color: '#4F46E5' },
@@ -49,14 +43,11 @@ export default function EmpresaColaboradores() {
             </div>
           ))}
         </div>
-
         <div className="card" style={{ padding: 0 }}>
           <div className="table-wrap">
             {loading ? <div style={{ padding: 40, textAlign: 'center' }}>Cargando…</div> : (
               <table>
-                <thead>
-                  <tr><th>Colaborador</th><th>Cargo</th><th>Área</th><th>Estado</th><th>Compras</th><th>Puntos</th><th>Acciones</th></tr>
-                </thead>
+                <thead><tr><th>Colaborador</th><th>Cargo</th><th>Área</th><th>Estado</th><th>Compras</th><th>Puntos</th></tr></thead>
                 <tbody>
                   {filtered.map(c => (
                     <tr key={c.id}>
@@ -78,9 +69,6 @@ export default function EmpresaColaboradores() {
                           <Star size={13} color="#F59E0B" fill="#F59E0B" />
                           <span style={{ fontWeight: 700 }}>{c.puntos || 0}</span>
                         </div>
-                      </td>
-                      <td>
-                        <button className="btn btn-ghost btn-sm">Ver perfil</button>
                       </td>
                     </tr>
                   ))}
