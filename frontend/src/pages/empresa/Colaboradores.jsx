@@ -79,6 +79,7 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
 }
 
 export default function EmpresaColaboradores() {
+  const { user } = useAuth();
   const [colaboradores, setColaboradores] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
