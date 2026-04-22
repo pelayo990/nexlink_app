@@ -163,7 +163,7 @@ export default function AdminColaboradores() {
                           </div>
                         </div>
                       </td>
-                      <td style={{ fontSize: 13 }}>{c.empresaId}</td>
+                      <td style={{ fontSize: 13 }}>{c.empresa?.nombre || c.empresaId}</td>
                       <td style={{ fontSize: 13 }}>{c.cargo || '—'}</td>
                       <td><span className={`badge ${c.estado === 'activo' ? 'badge-success' : 'badge-gray'}`}>{c.estado}</span></td>
                       <td style={{ fontWeight: 600 }}>{c.compras?.length || 0}</td>
