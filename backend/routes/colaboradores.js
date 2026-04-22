@@ -27,6 +27,21 @@ router.get('/:id', authMiddleware, async (req, res) => {
   res.json(colaborador);
 });
 
+// POST /api/colaboradores
+router.post('/', authMiddleware, async (req, res) => {
+  const { empresaId, nombre, email, cargo, area, rut, estado } = req.body;
+  if (!nombre || !email || !empresaId)
+    return res.status(400).json({ error: 'Nombre, email y empresa son obligatorios' });
+
+  const existe = await prisma.colaborador.findUnique({ where: { email } });
+  if (existe) return res.status(409).json({ error: 'Ya existe un colaborador con ese email' });
+
+  const colaborador = await prisma.colaborador.create({
+    data: { empresaId, nombre, email, cargo: cargo || null, area: area || null, rut: rut || null, estado: estado || 'activo', puntos: 0 },
+  });
+  res.status(201).json(colaborador);
+});
+
 // PUT /api/colaboradores/:id
 router.put('/:id', authMiddleware, async (req, res) => {
   // Extraer solo campos editables — excluir relaciones y campos no actualizables

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Search, Star, Download, Trash2, X } from 'lucide-react';
+import { Search, Star, Download, Trash2, X, UserPlus } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
-function Modal({ colaborador, onClose, onSave }) {
-  const [form, setForm] = useState(colaborador);
+function Modal({ colaborador, onClose, onSave, empresaId }) {
+  const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', estado: 'activo' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,7 +16,11 @@ function Modal({ colaborador, onClose, onSave }) {
     setLoading(true);
     setError('');
     try {
-      await api.put(`/colaboradores/${colaborador.id}`, form);
+      if (colaborador?.id) {
+        await api.put(`/colaboradores/${colaborador.id}`, form);
+      } else {
+        await api.post('/colaboradores', { ...form, empresaId });
+      }
       onSave();
     } catch (e) {
       setError(e.response?.data?.error || 'Error al guardar');
@@ -30,7 +34,7 @@ function Modal({ colaborador, onClose, onSave }) {
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)' }} onClick={onClose} />
       <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: 480, maxHeight: '90vh', overflowY: 'auto', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>Editar Colaborador</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700 }}>{colaborador?.id ? 'Editar Colaborador' : 'Nuevo Colaborador'}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={20} /></button>
         </div>
         {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{error}</div>}
@@ -66,7 +70,7 @@ function Modal({ colaborador, onClose, onSave }) {
         <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar cambios'}
+            {loading ? 'Guardando...' : colaborador?.id ? 'Guardar cambios' : 'Crear Colaborador'}
           </button>
         </div>
       </div>
@@ -78,7 +82,7 @@ export default function EmpresaColaboradores() {
   const [colaboradores, setColaboradores] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState(null); // null | 'new' | colaborador
   const [eliminando, setEliminando] = useState(null);
 
   const cargar = () => {
@@ -110,7 +114,7 @@ export default function EmpresaColaboradores() {
   return (
     <>
       <Topbar title="Colaboradores" subtitle="Gestiona los colaboradores activos en NexLink" />
-      {modal && <Modal colaborador={modal} onClose={() => setModal(null)} onSave={() => { setModal(null); cargar(); }} />}
+      {modal && <Modal colaborador={modal === 'new' ? null : modal} empresaId={user?.empresaId} onClose={() => setModal(null)} onSave={() => { setModal(null); cargar(); }} />}
 
       <div className="page-body">
         <div className="page-header">
@@ -119,7 +123,10 @@ export default function EmpresaColaboradores() {
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <button className="btn btn-secondary"><Download size={15} /> Exportar</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary"><Download size={15} /> Exportar</button>
+            <button className="btn btn-primary" onClick={() => setModal('new')}><UserPlus size={15} /> Agregar Colaborador</button>
+          </div>
         </div>
 
         <div className="grid-4" style={{ marginBottom: 24 }}>
