@@ -27,6 +27,16 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 module.exports = router;
 
+// PUT /api/colaboradores/:id
+router.put('/:id', authMiddleware, async (req, res) => {
+  const { empresaId, ...rest } = req.body;
+  const colaborador = await prisma.colaborador.update({
+    where: { id: req.params.id },
+    data: rest,
+  });
+  res.json(colaborador);
+});
+
 // DELETE /api/colaboradores/:id
 router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
   await prisma.compra.deleteMany({ where: { colaboradorId: req.params.id } });
