@@ -21,8 +21,7 @@ export default function CambiarPassword() {
     setLoading(true);
     setError('');
     try {
-      await api.post('/auth/cambiar-password', {
-        passwordActual: form.nueva, // No necesitamos la actual en este flujo
+      await api.post('/auth/cambiar-password-forzado', {
         passwordNueva: form.nueva,
       });
       // Forzar re-login para obtener token actualizado

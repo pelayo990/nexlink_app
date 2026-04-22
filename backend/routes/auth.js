@@ -166,3 +166,31 @@ router.get('/verificar', async (req, res) => {
 });
 
 module.exports = router;
+
+// POST /api/auth/cambiar-password-forzado — solo para usuarios con debeCambiarPassword=true
+router.post('/cambiar-password-forzado', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  let decoded;
+  try { decoded = jwt.verify(token, JWT_SECRET); }
+  catch { return res.status(403).json({ error: 'Token inválido' }); }
+
+  const { passwordNueva } = req.body;
+  if (!passwordNueva || passwordNueva.length < 6)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+
+  const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+  if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+  if (!user.debeCambiarPassword)
+    return res.status(403).json({ error: 'No se requiere cambio de contraseña' });
+
+  const hash = await bcrypt.hash(passwordNueva, 10);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { password: hash, debeCambiarPassword: false },
+  });
+
+  res.json({ message: 'Contraseña actualizada exitosamente' });
+});
