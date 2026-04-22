@@ -3,7 +3,7 @@ import { Search, Plus, Building2, X, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
-const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0, dominiosPermitidos: [], usuarioEmail: '', usuarioPassword: '', usuarioNombre: '' };
+const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0, dominiosPermitidos: [], usuarioEmail: '', usuarioPassword: '', usuarioNombre: '', editUsuarioEmail: '', editUsuarioPassword: '' };
 
 function Modal({ empresa, onClose, onSave }) {
   const [form, setForm] = useState(empresa || EMPTY);
@@ -144,6 +144,27 @@ function Modal({ empresa, onClose, onSave }) {
             </div>
           </div>
         </div>
+
+        {empresa?.id && (
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginTop: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Credenciales del administrador</div>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Deja en blanco para mantener las credenciales actuales.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nuevo email de acceso</label>
+                <input className="input" type="email" value={form.editUsuarioEmail} onChange={e => set('editUsuarioEmail', e.target.value)}
+                  placeholder="nuevo@empresa.cl" style={{ width: '100%' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nueva contraseña</label>
+                <input className="input" type="password" value={form.editUsuarioPassword} onChange={e => set('editUsuarioPassword', e.target.value)}
+                  placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {!empresa?.id && (
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginTop: 4 }}>

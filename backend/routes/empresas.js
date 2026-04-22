@@ -51,11 +51,36 @@ router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
 
 // PUT /api/empresas/:id
 router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
-  const { usuarioNombre, usuarioEmail, usuarioPassword, ...empresaData } = req.body;
+  const { usuarioNombre, usuarioEmail, usuarioPassword, editUsuarioEmail, editUsuarioPassword, ...empresaData } = req.body;
+
   const empresa = await prisma.empresa.update({
     where: { id: req.params.id },
     data: empresaData,
   });
+
+  // Actualizar credenciales del usuario admin si se proporcionaron
+  if (editUsuarioEmail || editUsuarioPassword) {
+    const adminUser = await prisma.user.findFirst({
+      where: { empresaId: req.params.id, rol: 'empresa' },
+    });
+
+    if (adminUser) {
+      const updateData = {};
+      if (editUsuarioEmail) {
+        const existe = await prisma.user.findUnique({ where: { email: editUsuarioEmail } });
+        if (existe && existe.id !== adminUser.id)
+          return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
+        updateData.email = editUsuarioEmail;
+      }
+      if (editUsuarioPassword) {
+        if (editUsuarioPassword.length < 6)
+          return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+        updateData.password = await bcrypt.hash(editUsuarioPassword, 10);
+      }
+      await prisma.user.update({ where: { id: adminUser.id }, data: updateData });
+    }
+  }
+
   res.json(empresa);
 });
 
