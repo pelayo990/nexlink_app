@@ -26,3 +26,11 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// DELETE /api/colaboradores/:id
+router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  await prisma.compra.deleteMany({ where: { colaboradorId: req.params.id } });
+  await prisma.user.deleteMany({ where: { colaboradorId: req.params.id } });
+  await prisma.colaborador.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Colaborador eliminado' });
+});

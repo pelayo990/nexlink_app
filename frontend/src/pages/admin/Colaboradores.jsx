@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Users } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
@@ -7,6 +7,20 @@ export default function AdminColaboradores() {
   const [colaboradores, setColaboradores] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [eliminando, setEliminando] = useState(null);
+
+  const eliminar = async (id, nombre) => {
+    if (!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    setEliminando(id);
+    try {
+      await api.delete(`/colaboradores/${id}`);
+      cargar();
+    } catch (e) {
+      alert(e.response?.data?.error || 'Error al eliminar');
+    } finally {
+      setEliminando(null);
+    }
+  };
 
   useEffect(() => {
     api.get('/colaboradores').then(r => setColaboradores(r.data)).finally(() => setLoading(false));

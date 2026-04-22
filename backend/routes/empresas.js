@@ -71,3 +71,19 @@ router.post('/:id/dominios', authMiddleware, roleMiddleware('admin'), async (req
 });
 
 module.exports = router;
+
+// DELETE /api/empresas/:id
+router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+  const colaboradores = await prisma.colaborador.findMany({ where: { empresaId: req.params.id } });
+  for (const c of colaboradores) {
+    await prisma.compra.deleteMany({ where: { colaboradorId: c.id } });
+    await prisma.user.deleteMany({ where: { colaboradorId: c.id } });
+  }
+  await prisma.colaborador.deleteMany({ where: { empresaId: req.params.id } });
+  await prisma.eventoEmpresa.deleteMany({ where: { empresaId: req.params.id } });
+  await prisma.user.deleteMany({ where: { empresaId: req.params.id } });
+  await prisma.producto.deleteMany({ where: { empresaId: req.params.id } });
+  await prisma.evento.deleteMany({ where: { empresaId: req.params.id } });
+  await prisma.empresa.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Empresa eliminada' });
+});

@@ -72,3 +72,11 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
+// DELETE /api/eventos/:id
+router.delete('/:id', authMiddleware, async (req, res) => {
+  await prisma.compra.deleteMany({ where: { eventoId: req.params.id } });
+  await prisma.eventoEmpresa.deleteMany({ where: { eventoId: req.params.id } });
+  await prisma.evento.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Evento eliminado' });
+});

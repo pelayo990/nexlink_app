@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, X, Calendar } from 'lucide-react';
+import { Search, Plus, X, Calendar, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import EventoCard from '../../components/EventoCard';
 import api from '../../services/api';
@@ -166,6 +166,20 @@ export default function AdminEventos() {
   useEffect(() => { cargar(); }, []);
 
   const handleSave = () => { setModal(null); cargar(); };
+  const [eliminando, setEliminando] = useState(null);
+
+  const eliminar = async (id, nombre) => {
+    if (!confirm(`¿Eliminar el evento "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    setEliminando(id);
+    try {
+      await api.delete(`/eventos/${id}`);
+      cargar();
+    } catch (e) {
+      alert(e.response?.data?.error || 'Error al eliminar');
+    } finally {
+      setEliminando(null);
+    }
+  };
 
   const filtered = eventos.filter(ev => {
     const matchSearch = ev.nombre.toLowerCase().includes(search.toLowerCase()) ||
@@ -223,11 +237,14 @@ export default function AdminEventos() {
             {filtered.map(ev => (
               <div key={ev.id} style={{ position: 'relative' }}>
                 <EventoCard evento={ev} showActions />
-                <button className="btn btn-secondary btn-sm"
-                  onClick={() => setModal(ev)}
-                  style={{ position: 'absolute', top: 12, right: 12 }}>
-                  Editar
-                </button>
+                <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6 }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setModal(ev)}>Editar</button>
+                  <button className="btn btn-ghost btn-sm" style={{ color: '#EF4444', background: '#FEF2F2' }}
+                    onClick={() => eliminar(ev.id, ev.nombre)}
+                    disabled={eliminando === ev.id}>
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

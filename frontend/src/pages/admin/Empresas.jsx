@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, Building2, X } from 'lucide-react';
+import { Search, Plus, Building2, X, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
@@ -198,6 +198,20 @@ export default function AdminEmpresas() {
   useEffect(() => { cargar(); }, []);
 
   const handleSave = () => { setModal(null); cargar(); };
+  const [eliminando, setEliminando] = useState(null);
+
+  const eliminar = async (id, nombre) => {
+    if (!confirm(`¿Eliminar la empresa "${nombre}"? Se eliminarán todos sus colaboradores, productos y eventos. Esta acción no se puede deshacer.`)) return;
+    setEliminando(id);
+    try {
+      await api.delete(`/empresas/${id}`);
+      cargar();
+    } catch (e) {
+      alert(e.response?.data?.error || 'Error al eliminar');
+    } finally {
+      setEliminando(null);
+    }
+  };
 
   const filtered = empresas.filter(e =>
     e.nombre.toLowerCase().includes(search.toLowerCase()) ||
@@ -271,7 +285,14 @@ export default function AdminEmpresas() {
                         </div>
                       </td>
                       <td>
-                        <button className="btn btn-ghost btn-sm" onClick={() => setModal(e)}>Editar</button>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setModal(e)}>Editar</button>
+                          <button className="btn btn-ghost btn-sm" style={{ color: '#EF4444' }}
+                            onClick={() => eliminar(e.id, e.nombre)}
+                            disabled={eliminando === e.id}>
+                            <Trash2 size={14} /> {eliminando === e.id ? '...' : 'Eliminar'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
