@@ -17,6 +17,7 @@ model User {
   empresaId     String?
   colaboradorId String?
   emailVerificado    Boolean   @default(false)
+  debeCambiarPassword Boolean   @default(false)
   tokenVerificacion  String?   @unique
   tokenExpira        DateTime?
   createdAt          DateTime  @default(now())

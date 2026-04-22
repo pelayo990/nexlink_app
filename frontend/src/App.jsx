@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import VerificarEmail from './pages/VerificarEmail';
 import Perfil from './pages/Perfil';
+import CambiarPassword from './pages/CambiarPassword';
 
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminEmpresas from './pages/admin/Empresas';
@@ -32,6 +33,7 @@ const ROL_HOME = {
 function ProtectedRoute({ children, roles }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+  if (user.debeCambiarPassword) return <Navigate to="/cambiar-password" replace />;
   if (roles && !roles.includes(user.rol)) return <Navigate to={ROL_HOME[user.rol] || '/login'} replace />;
   return children;
 }
@@ -59,6 +61,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
+            <Route path="/cambiar-password" element={<CambiarPassword />} />
             <Route path="/verificar-email" element={<VerificarEmail />} />
             <Route path="/" element={<RootRedirect />} />
 

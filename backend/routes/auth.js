@@ -44,6 +44,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     avatar: user.avatar,
     empresaId: user.empresaId || null,
     colaboradorId: user.colaboradorId || null,
+    debeCambiarPassword: user.debeCambiarPassword || false,
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
@@ -86,7 +87,7 @@ router.post('/cambiar-password', async (req, res) => {
   if (!valid) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
 
   const hash = await bcrypt.hash(passwordNueva, 10);
-  await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
+  await prisma.user.update({ where: { id: user.id }, data: { password: hash, debeCambiarPassword: false } });
   res.json({ message: 'Contraseña actualizada exitosamente' });
 });
 

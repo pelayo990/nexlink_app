@@ -54,6 +54,7 @@ router.post('/', authMiddleware, async (req, res) => {
       nombre, email, password: hash, rol: 'colaborador', avatar,
       empresaId, colaboradorId: colaborador.id,
       emailVerificado: true,
+      debeCambiarPassword: true,
     },
   });
 
