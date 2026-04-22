@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 
 const authRoutes = require('./routes/auth');
-const marcasRoutes = require('./routes/marcas');
 const empresasRoutes = require('./routes/empresas');
 const colaboradoresRoutes = require('./routes/colaboradores');
 const eventosRoutes = require('./routes/eventos');
@@ -23,7 +22,6 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.use('/api/auth', authRoutes);
-app.use('/api/marcas', marcasRoutes);
 app.use('/api/empresas', empresasRoutes);
 app.use('/api/colaboradores', colaboradoresRoutes);
 app.use('/api/eventos', eventosRoutes);
