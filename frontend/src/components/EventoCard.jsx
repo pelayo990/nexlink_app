@@ -1,4 +1,4 @@
-import { Calendar, Clock, Package, Users, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Package, Users, ChevronRight, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ESTADO_MAP = {
