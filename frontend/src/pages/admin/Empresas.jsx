@@ -3,7 +3,7 @@ import { Search, Plus, Building2, X } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
-const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0, dominiosPermitidos: [] };
+const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0, dominiosPermitidos: [], usuarioEmail: '', usuarioPassword: '', usuarioNombre: '' };
 
 function Modal({ empresa, onClose, onSave }) {
   const [form, setForm] = useState(empresa || EMPTY);
@@ -26,6 +26,10 @@ function Modal({ empresa, onClose, onSave }) {
 
   const handleSubmit = async () => {
     if (!form.nombre || !form.industria) return setError('Nombre e industria son obligatorios');
+    if (!empresa?.id && (!form.usuarioNombre || !form.usuarioEmail || !form.usuarioPassword))
+      return setError('El nombre, email y contraseña del administrador son obligatorios');
+    if (!empresa?.id && form.usuarioPassword.length < 6)
+      return setError('La contraseña debe tener al menos 6 caracteres');
     setLoading(true);
     setError('');
     try {
@@ -140,6 +144,34 @@ function Modal({ empresa, onClose, onSave }) {
             </div>
           </div>
         </div>
+
+        {!empresa?.id && (
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginTop: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Usuario administrador de la empresa</div>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Se creará automáticamente una cuenta para que la empresa pueda ingresar al portal.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nombre del administrador *</label>
+                <input className="input" value={form.usuarioNombre} onChange={e => set('usuarioNombre', e.target.value)}
+                  placeholder="Ej: Roberto Fuentes" style={{ width: '100%' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Email de acceso *</label>
+                  <input className="input" type="email" value={form.usuarioEmail} onChange={e => set('usuarioEmail', e.target.value)}
+                    placeholder="admin@empresa.cl" style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña *</label>
+                  <input className="input" type="password" value={form.usuarioPassword} onChange={e => set('usuarioPassword', e.target.value)}
+                    placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
