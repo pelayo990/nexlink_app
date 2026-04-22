@@ -29,11 +29,11 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 // PUT /api/colaboradores/:id
 router.put('/:id', authMiddleware, async (req, res) => {
-  const { empresaId, ...rest } = req.body;
+  // Extraer solo campos editables — excluir relaciones y campos no actualizables
+  const { empresaId, compras, empresa, id, ...rest } = req.body;
   const colaborador = await prisma.colaborador.update({
     where: { id: req.params.id },
     data: rest,
-    include: { empresa: true },
   });
   res.json(colaborador);
 });
