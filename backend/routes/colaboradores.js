@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
 const prisma = new PrismaClient();
@@ -31,6 +31,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/colaboradores
 router.post('/', authMiddleware, async (req, res) => {
   const { empresaId, nombre, email, cargo, area, rut, telefono, estado, passwordProvisoria } = req.body;
+
   if (!nombre || !email || !empresaId)
     return res.status(400).json({ error: 'Nombre, email y empresa son obligatorios' });
   if (!passwordProvisoria || passwordProvisoria.length < 6)
@@ -42,11 +43,20 @@ router.post('/', authMiddleware, async (req, res) => {
   const existeUser = await prisma.user.findUnique({ where: { email } });
   if (existeUser) return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
 
+  // Validar que el dominio del email corresponde a la empresa seleccionada
+  const dominio = email.split('@')[1];
+  const empresa = await prisma.empresa.findUnique({ where: { id: empresaId } });
+  if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
+  if (empresa.dominiosPermitidos.length > 0 && !empresa.dominiosPermitidos.includes(dominio)) {
+    return res.status(400).json({
+      error: `El dominio @${dominio} no está permitido para ${empresa.nombre}. Dominios válidos: ${empresa.dominiosPermitidos.map(d => '@' + d).join(', ')}`,
+    });
+  }
+
   const colaborador = await prisma.colaborador.create({
     data: { empresaId, nombre, email, cargo: cargo || null, area: area || null, rut: rut || null, telefono: telefono || null, estado: estado || 'activo', puntos: 0 },
   });
 
-  // Crear usuario con contraseña provisoria y email verificado
   const hash = await bcrypt.hash(passwordProvisoria, 10);
   const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
   await prisma.user.create({
@@ -63,7 +73,6 @@ router.post('/', authMiddleware, async (req, res) => {
 
 // PUT /api/colaboradores/:id
 router.put('/:id', authMiddleware, async (req, res) => {
-  // Extraer solo campos editables — excluir relaciones y campos no actualizables
   const { empresaId, compras, empresa, id, ...rest } = req.body;
   const colaborador = await prisma.colaborador.update({
     where: { id: req.params.id },
