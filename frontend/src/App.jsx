@@ -18,6 +18,7 @@ import AdminReportes from './pages/admin/Reportes';
 import EmpresaDashboard from './pages/empresa/Dashboard';
 import EmpresaProductos from './pages/empresa/Productos';
 import EmpresaEventos from './pages/empresa/Eventos';
+import EventoDetalle from './pages/empresa/EventoDetalle';
 import EmpresaColaboradores from './pages/empresa/Colaboradores';
 import EmpresaReportes from './pages/empresa/Reportes';
 
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="/empresa" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaDashboard /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/productos" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaProductos /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/eventos" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaEventos /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/eventos/:id" element={<ProtectedRoute roles={['empresa','admin']}><AppLayout><EventoDetalle /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/colaboradores" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaColaboradores /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/reportes" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaReportes /></AppLayout></ProtectedRoute>} />
 

@@ -72,7 +72,11 @@ export default function EventoCard({ evento, showActions = false, onEdit, onView
             onClick={() => onView ? onView(evento) : navigate(`/evento/${evento.id}`)}>
             Ver Evento <ChevronRight size={14} />
           </button>
-          {showActions && (
+          <button onClick={() => navigate(`/empresa/eventos/${evento.id}`)}
+        style={{ width: '100%', marginTop: 12, padding: '8px', borderRadius: 8, border: '1px solid var(--border)', background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+        Ver detalle <ArrowRight size={14} />
+      </button>
+      {showActions && (
             <button className="btn btn-secondary btn-sm" onClick={() => onEdit?.(evento)}>
               Editar
             </button>
