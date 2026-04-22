@@ -47,18 +47,36 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 router.post('/', authMiddleware, async (req, res) => {
-  const { empresasInvitadas, ...rest } = req.body;
-  const evento = await prisma.evento.create({
-    data: {
-      ...rest,
+  try {
+    const { empresasInvitadas, marca, empresa, _count, totalProductos, ...rest } = req.body;
+
+    // Solo campos válidos del schema
+    const data = {
+      nombre: rest.nombre,
+      descripcion: rest.descripcion || null,
+      banner: rest.banner || null,
+      fechaInicio: rest.fechaInicio ? new Date(rest.fechaInicio) : undefined,
+      fechaFin: rest.fechaFin ? new Date(rest.fechaFin) : undefined,
+      estado: rest.estado || 'proximo',
+      destacado: rest.destacado || false,
+      tipo: rest.tipo || 'flash',
+      maxComprasPorColaborador: parseInt(rest.maxComprasPorColaborador) || 2,
       empresaId: req.user.empresaId || rest.empresaId,
-      empresas: empresasInvitadas
-        ? { create: empresasInvitadas.map(id => ({ empresaId: id })) }
-        : undefined,
-    },
-    include: { empresa: true },
-  });
-  res.json({ ...evento, marca: evento.empresa });
+    };
+
+    if (empresasInvitadas?.length) {
+      data.empresas = { create: empresasInvitadas.map(id => ({ empresaId: id })) };
+    }
+
+    const evento = await prisma.evento.create({
+      data,
+      include: { empresa: true },
+    });
+    res.json({ ...evento, marca: evento.empresa });
+  } catch (e) {
+    console.error('Error creando evento:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 router.put('/:id', authMiddleware, async (req, res) => {
