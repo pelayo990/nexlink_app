@@ -7,7 +7,7 @@ const enviarVerificacion = async ({ nombre, email, token }) => {
   const link = `${FRONTEND_URL}/verificar-email?token=${token}`;
 
   await resend.emails.send({
-    from: 'NexLink <onboarding@resend.dev>',
+    from: 'NexLink <noreply@groopa.cl>',
     to: email,
     subject: 'Confirma tu cuenta en NexLink',
     html: `
@@ -38,7 +38,7 @@ const enviarVerificacion = async ({ nombre, email, token }) => {
 
 const enviarBienvenida = async ({ nombre, email, empresa }) => {
   await resend.emails.send({
-    from: 'NexLink <onboarding@resend.dev>',
+    from: 'NexLink <noreply@groopa.cl>',
     to: email,
     subject: `¡Bienvenido a NexLink, ${nombre}!`,
     html: `
