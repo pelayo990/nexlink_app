@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 function Modal({ colaborador, onClose, onSave, empresaId }) {
-  const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', estado: 'activo', passwordProvisoria: '' });
+  const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', telefono: '', estado: 'activo', passwordProvisoria: '' });
   const [creado, setCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -59,6 +59,16 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Área</label>
               <input className="input" value={form.area || ''} onChange={e => set('area', e.target.value)} style={{ width: '100%' }} />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>RUT</label>
+              <input className="input" value={form.rut || ''} onChange={e => set('rut', e.target.value)} placeholder="12.345.678-9" style={{ width: '100%' }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Teléfono</label>
+              <input className="input" value={form.telefono || ''} onChange={e => set('telefono', e.target.value)} placeholder="+56 9 1234 5678" style={{ width: '100%' }} />
             </div>
           </div>
           {!colaborador?.id && (

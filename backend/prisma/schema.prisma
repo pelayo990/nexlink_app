@@ -67,6 +67,7 @@ model Colaborador {
   cargo        String?
   area         String?
   rut          String?   @unique
+  telefono     String?
   fechaIngreso DateTime  @default(now())
   estado       Estado    @default(activo)
   puntos       Int       @default(0)

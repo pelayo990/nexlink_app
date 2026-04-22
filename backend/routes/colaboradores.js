@@ -30,7 +30,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 // POST /api/colaboradores
 router.post('/', authMiddleware, async (req, res) => {
-  const { empresaId, nombre, email, cargo, area, rut, estado, passwordProvisoria } = req.body;
+  const { empresaId, nombre, email, cargo, area, rut, telefono, estado, passwordProvisoria } = req.body;
   if (!nombre || !email || !empresaId)
     return res.status(400).json({ error: 'Nombre, email y empresa son obligatorios' });
   if (!passwordProvisoria || passwordProvisoria.length < 6)
@@ -43,7 +43,7 @@ router.post('/', authMiddleware, async (req, res) => {
   if (existeUser) return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
 
   const colaborador = await prisma.colaborador.create({
-    data: { empresaId, nombre, email, cargo: cargo || null, area: area || null, rut: rut || null, estado: estado || 'activo', puntos: 0 },
+    data: { empresaId, nombre, email, cargo: cargo || null, area: area || null, rut: rut || null, telefono: telefono || null, estado: estado || 'activo', puntos: 0 },
   });
 
   // Crear usuario con contraseña provisoria y email verificado
