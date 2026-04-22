@@ -3,10 +3,11 @@ import { Search, Trash2, X, UserPlus } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
-const EMPTY = { nombre: '', email: '', cargo: '', area: '', rut: '', estado: 'activo' };
+const EMPTY = { nombre: '', email: '', cargo: '', area: '', rut: '', telefono: '', estado: 'activo', empresaId: '', passwordProvisoria: '' };
 
-function Modal({ colaborador, onClose, onSave }) {
+function Modal({ colaborador, onClose, onSave, empresas }) {
   const [form, setForm] = useState(colaborador || EMPTY);
+  const [creado, setCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -14,13 +15,19 @@ function Modal({ colaborador, onClose, onSave }) {
 
   const handleSubmit = async () => {
     if (!form.nombre || !form.email) return setError('Nombre y email son obligatorios');
+    if (!colaborador?.id && !form.empresaId) return setError('Debes seleccionar una empresa');
+    if (!colaborador?.id && (!form.passwordProvisoria || form.passwordProvisoria.length < 6))
+      return setError('La contraseña provisoria debe tener al menos 6 caracteres');
     setLoading(true);
     setError('');
     try {
       if (colaborador?.id) {
         await api.put(`/colaboradores/${colaborador.id}`, form);
+        onSave();
+      } else {
+        const { data } = await api.post('/colaboradores', form);
+        setCreado({ email: data.email, password: data.passwordProvisoria });
       }
-      onSave();
     } catch (e) {
       setError(e.response?.data?.error || 'Error al guardar');
     } finally {
@@ -33,7 +40,7 @@ function Modal({ colaborador, onClose, onSave }) {
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)' }} onClick={onClose} />
       <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: 480, maxHeight: '90vh', overflowY: 'auto', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>Editar Colaborador</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700 }}>{colaborador?.id ? 'Editar Colaborador' : 'Nuevo Colaborador'}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={20} /></button>
         </div>
         {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{error}</div>}
@@ -75,9 +82,9 @@ function Modal({ colaborador, onClose, onSave }) {
         <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar cambios'}
+            {loading ? 'Guardando...' : colaborador?.id ? 'Guardar cambios' : 'Crear Colaborador'}
           </button>
-        </div>
+        </div>}
       </div>
     </div>
   );
@@ -89,10 +96,13 @@ export default function AdminColaboradores() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [eliminando, setEliminando] = useState(null);
+  const [empresas, setEmpresas] = useState([]);
 
   const cargar = () => {
     setLoading(true);
-    api.get('/colaboradores').then(r => setColaboradores(r.data)).finally(() => setLoading(false));
+    Promise.all([api.get('/colaboradores'), api.get('/empresas')])
+      .then(([cRes, eRes]) => { setColaboradores(cRes.data); setEmpresas(eRes.data); })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => { cargar(); }, []);
@@ -119,7 +129,7 @@ export default function AdminColaboradores() {
   return (
     <>
       <Topbar title="Colaboradores" subtitle="Todos los colaboradores de la plataforma" />
-      {modal && <Modal colaborador={modal} onClose={() => setModal(null)} onSave={() => { setModal(null); cargar(); }} />}
+      {modal && <Modal colaborador={modal === 'new' ? null : modal} empresas={empresas} onClose={() => setModal(null)} onSave={() => { setModal(null); cargar(); }} />}
 
       <div className="page-body">
         <div className="page-header">
@@ -128,6 +138,7 @@ export default function AdminColaboradores() {
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          <button className="btn btn-primary" onClick={() => setModal('new')}><UserPlus size={15} /> Agregar Colaborador</button>
         </div>
 
         <div className="grid-4" style={{ marginBottom: 24 }}>
