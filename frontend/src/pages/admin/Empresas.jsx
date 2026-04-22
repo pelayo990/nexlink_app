@@ -3,7 +3,7 @@ import { Search, Plus, Building2, X } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
-const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0 };
+const EMPTY = { nombre: '', industria: '', contactoRRHH: '', emailRRHH: '', telefono: '', rut: '', plan: 'standard', estado: 'activo', totalColaboradores: 0, dominiosPermitidos: [] };
 
 function Modal({ empresa, onClose, onSave }) {
   const [form, setForm] = useState(empresa || EMPTY);
@@ -11,6 +11,18 @@ function Modal({ empresa, onClose, onSave }) {
   const [error, setError] = useState('');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const [dominioInput, setDominioInput] = useState('');
+
+  const agregarDominio = () => {
+    const d = dominioInput.trim().toLowerCase().replace('@', '');
+    if (!d || form.dominiosPermitidos.includes(d)) return;
+    setForm(f => ({ ...f, dominiosPermitidos: [...f.dominiosPermitidos, d] }));
+    setDominioInput('');
+  };
+
+  const eliminarDominio = (d) => {
+    setForm(f => ({ ...f, dominiosPermitidos: f.dominiosPermitidos.filter(x => x !== d) }));
+  };
 
   const handleSubmit = async () => {
     if (!form.nombre || !form.industria) return setError('Nombre e industria son obligatorios');
@@ -79,6 +91,31 @@ function Modal({ empresa, onClose, onSave }) {
               <input className="input" type="email" value={form.emailRRHH} onChange={e => set('emailRRHH', e.target.value)} placeholder="rrhh@empresa.cl" style={{ width: '100%' }} />
             </div>
           </div>
+
+          <div>
+              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Dominios de email permitidos</label>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
+                Los colaboradores solo podrán registrarse con emails de estos dominios (ej: bancochile.cl)
+              </p>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <input className="input" value={dominioInput} onChange={e => setDominioInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && agregarDominio()}
+                  placeholder="ej: bancochile.cl" style={{ flex: 1 }} />
+                <button className="btn btn-secondary" onClick={agregarDominio} type="button">Agregar</button>
+              </div>
+              {form.dominiosPermitidos.length === 0 ? (
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>Sin dominios agregados</div>
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {form.dominiosPermitidos.map(d => (
+                    <div key={d} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EEF2FF', color: '#4F46E5', padding: '4px 10px', borderRadius: 99, fontSize: 13, fontWeight: 600 }}>
+                      @{d}
+                      <button onClick={() => eliminarDominio(d)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4F46E5', padding: 0, display: 'flex', alignItems: 'center' }}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             <div>
