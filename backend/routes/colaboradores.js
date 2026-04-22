@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
 const prisma = new PrismaClient();
@@ -29,17 +30,34 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 // POST /api/colaboradores
 router.post('/', authMiddleware, async (req, res) => {
-  const { empresaId, nombre, email, cargo, area, rut, estado } = req.body;
+  const { empresaId, nombre, email, cargo, area, rut, estado, passwordProvisoria } = req.body;
   if (!nombre || !email || !empresaId)
     return res.status(400).json({ error: 'Nombre, email y empresa son obligatorios' });
+  if (!passwordProvisoria || passwordProvisoria.length < 6)
+    return res.status(400).json({ error: 'La contraseña provisoria debe tener al menos 6 caracteres' });
 
-  const existe = await prisma.colaborador.findUnique({ where: { email } });
-  if (existe) return res.status(409).json({ error: 'Ya existe un colaborador con ese email' });
+  const existeColab = await prisma.colaborador.findUnique({ where: { email } });
+  if (existeColab) return res.status(409).json({ error: 'Ya existe un colaborador con ese email' });
+
+  const existeUser = await prisma.user.findUnique({ where: { email } });
+  if (existeUser) return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
 
   const colaborador = await prisma.colaborador.create({
     data: { empresaId, nombre, email, cargo: cargo || null, area: area || null, rut: rut || null, estado: estado || 'activo', puntos: 0 },
   });
-  res.status(201).json(colaborador);
+
+  // Crear usuario con contraseña provisoria y email verificado
+  const hash = await bcrypt.hash(passwordProvisoria, 10);
+  const avatar = nombre.split(' ').map(n => n.charAt(0)).join('').slice(0, 2).toUpperCase();
+  await prisma.user.create({
+    data: {
+      nombre, email, password: hash, rol: 'colaborador', avatar,
+      empresaId, colaboradorId: colaborador.id,
+      emailVerificado: true,
+    },
+  });
+
+  res.status(201).json({ ...colaborador, passwordProvisoria });
 });
 
 // PUT /api/colaboradores/:id

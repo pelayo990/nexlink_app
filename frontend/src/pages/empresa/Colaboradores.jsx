@@ -5,7 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 function Modal({ colaborador, onClose, onSave, empresaId }) {
-  const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', estado: 'activo' });
+  const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', estado: 'activo', passwordProvisoria: '' });
+  const [creado, setCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -18,10 +19,11 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
     try {
       if (colaborador?.id) {
         await api.put(`/colaboradores/${colaborador.id}`, form);
+        onSave();
       } else {
-        await api.post('/colaboradores', { ...form, empresaId });
+        const { data } = await api.post('/colaboradores', { ...form, empresaId });
+        setCreado({ email: data.email, password: data.passwordProvisoria });
       }
-      onSave();
     } catch (e) {
       setError(e.response?.data?.error || 'Error al guardar');
     } finally {
@@ -59,6 +61,14 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
               <input className="input" value={form.area || ''} onChange={e => set('area', e.target.value)} style={{ width: '100%' }} />
             </div>
           </div>
+          {!colaborador?.id && (
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña provisoria *</label>
+              <input className="input" type="text" value={form.passwordProvisoria} onChange={e => set('passwordProvisoria', e.target.value)}
+                placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>El colaborador podrá cambiarla desde su perfil.</p>
+            </div>
+          )}
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Estado</label>
             <select className="input" value={form.estado} onChange={e => set('estado', e.target.value)} style={{ width: '100%' }}>
@@ -67,12 +77,24 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
             </select>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
+        {creado && (
+          <div style={{ background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
+            <div style={{ fontWeight: 700, color: '#065F46', marginBottom: 8 }}>✅ Colaborador creado exitosamente</div>
+            <div style={{ fontSize: 13, color: '#065F46' }}>Comparte estas credenciales con el colaborador:</div>
+            <div style={{ marginTop: 10, background: '#fff', borderRadius: 8, padding: '10px 14px', fontFamily: 'monospace', fontSize: 13 }}>
+              <div>📧 Email: <strong>{creado.email}</strong></div>
+              <div>🔑 Contraseña: <strong>{creado.password}</strong></div>
+            </div>
+            <button className="btn btn-primary" style={{ marginTop: 12, width: '100%' }} onClick={onSave}>Cerrar</button>
+          </div>
+        )}
+        {!creado && <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
             {loading ? 'Guardando...' : colaborador?.id ? 'Guardar cambios' : 'Crear Colaborador'}
           </button>
-        </div>
+        </div>}
+
       </div>
     </div>
   );
