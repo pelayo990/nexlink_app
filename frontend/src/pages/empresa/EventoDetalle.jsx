@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Package, Users, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Package, Users, Clock, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
 
@@ -33,6 +33,19 @@ export default function EventoDetalle() {
   const navigate = useNavigate();
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [eliminando, setEliminando] = useState(false);
+
+  const eliminar = async () => {
+    if (!confirm(`¿Eliminar el evento "${evento.nombre}"? Esta acción no se puede deshacer.`)) return;
+    setEliminando(true);
+    try {
+      await api.delete(`/eventos/${id}`);
+      navigate(-1);
+    } catch (e) {
+      alert(e.response?.data?.error || 'Error al eliminar');
+      setEliminando(false);
+    }
+  };
 
   useEffect(() => {
     api.get(`/eventos/${id}`).then(r => setEvento(r.data)).finally(() => setLoading(false));
@@ -50,10 +63,16 @@ export default function EventoDetalle() {
       <Topbar title={evento.nombre} subtitle="Detalle del evento flash" />
       <div className="page-body">
 
-        {/* Botón volver */}
-        <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 600, marginBottom: 20, padding: 0 }}>
-          <ArrowLeft size={16} /> Volver
-        </button>
+        {/* Botón volver + eliminar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 600, padding: 0 }}>
+            <ArrowLeft size={16} /> Volver
+          </button>
+          <button onClick={eliminar} disabled={eliminando}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, cursor: 'pointer', color: '#EF4444', fontSize: 14, fontWeight: 600, padding: '8px 16px' }}>
+            <Trash2 size={15} /> {eliminando ? 'Eliminando...' : 'Eliminar evento'}
+          </button>
+        </div>
 
         {/* Header del evento */}
         <div className="card" style={{ marginBottom: 24 }}>
