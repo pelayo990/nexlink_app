@@ -67,7 +67,7 @@ router.post('/', authMiddleware, roleMiddleware('colaborador'), async (req, res)
 router.get('/mis-compras', authMiddleware, roleMiddleware('colaborador'), async (req, res) => {
   const compras = await prisma.compra.findMany({
     where: { colaboradorId: req.user.colaboradorId },
-    include: { producto: { include: { marca: true } }, evento: true },
+    include: { producto: { include: { empresa: true } }, evento: true },
     orderBy: { fecha: 'desc' },
   });
   res.json(compras);
