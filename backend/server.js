@@ -12,6 +12,7 @@ const productosRoutes = require('./routes/productos');
 const dashboardRoutes = require('./routes/dashboard');
 const comprasRoutes = require('./routes/compras');
 const reportesRoutes = require('./routes/reportes');
+const uploadsRoutes = require('./routes/uploads');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -29,6 +30,7 @@ app.use('/api/productos', productosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/compras', comprasRoutes);
 app.use('/api/reportes', reportesRoutes);
+app.use('/api/uploads', uploadsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', version: '2.0.0', plataforma: 'NexLink', db: 'PostgreSQL' });

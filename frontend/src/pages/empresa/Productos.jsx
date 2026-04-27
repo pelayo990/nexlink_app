@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Search, Plus, X } from 'lucide-react';
 import Topbar from '../../components/Topbar';
+import ImageUpload from '../../components/ImageUpload';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -99,6 +100,10 @@ function Modal({ producto, eventos, onClose, onSave }) {
               <input className="input" type="number" value={form.descuento} onChange={e => set('descuento', e.target.value)} style={{ width: '100%' }} />
             </div>
           </div>
+          <div>
+            <ImageUpload value={form.imagen} onChange={url => set('imagen', url)} label="Imagen del producto" />
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Stock *</label>

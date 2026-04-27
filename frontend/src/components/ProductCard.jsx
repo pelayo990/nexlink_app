@@ -12,8 +12,10 @@ function ProductModal({ producto, onClose, onComprar }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)' }} onClick={onClose} />
       <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
-        <div style={{ height: 200, background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80, position: 'relative', borderRadius: '16px 16px 0 0' }}>
-          {PRODUCT_ICONS[producto.imagen] || '📦'}
+        <div style={{ height: 200, background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80, position: 'relative', borderRadius: '16px 16px 0 0', overflow: 'hidden' }}>
+          {producto.imagen && producto.imagen.startsWith('http')
+            ? <img src={producto.imagen} alt={producto.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+            : PRODUCT_ICONS[producto.imagen] || '📦'}
           <span style={{ position: 'absolute', top: 16, left: 16, background: '#EF4444', color: '#fff', padding: '4px 12px', borderRadius: 99, fontSize: 14, fontWeight: 800 }}>-{producto.descuento}%</span>
           <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(0,0,0,.3)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={16} /></button>
         </div>
@@ -50,8 +52,10 @@ export default function ProductCard({ producto, onComprar }) {
   return (
     <>
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ height: 160, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64, position: 'relative' }}>
-          {icon}
+        <div style={{ height: 160, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64, position: 'relative', overflow: 'hidden' }}>
+          {producto.imagen && producto.imagen.startsWith('http')
+            ? <img src={producto.imagen} alt={producto.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+            : icon}
           <span style={{ position: 'absolute', top: 12, left: 12, background: 'var(--danger)', color: '#fff', padding: '3px 10px', borderRadius: 99, fontSize: 13, fontWeight: 700 }}>
             -{producto.descuento}%
           </span>

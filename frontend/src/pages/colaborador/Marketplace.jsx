@@ -101,6 +101,9 @@ export default function Marketplace() {
   const [eventoSel, setEventoSel] = useState(null);
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState('Todas');
+  const [ordenar, setOrdenar] = useState('relevancia');
+  const [soloStock, setSoloStock] = useState(false);
+  const [descuentoMin, setDescuentoMin] = useState(0);
   const [carrito, setCarrito] = useState([]);
   const [showCarrito, setShowCarrito] = useState(false);
   const [compraOk, setCompraOk] = useState(false);
@@ -126,12 +129,22 @@ export default function Marketplace() {
 
   useEffect(() => { cargarDatos(); }, [user]);
 
-  const productosFiltrados = productos.filter(p => {
-    const matchEvento = eventoSel ? p.eventoId === eventoSel.id : true;
-    const matchSearch = p.nombre.toLowerCase().includes(search.toLowerCase());
-    const matchCat = categoria === 'Todas' || p.categoria === categoria;
-    return matchEvento && matchSearch && matchCat;
-  });
+  const productosFiltrados = productos
+    .filter(p => {
+      const matchEvento = eventoSel ? p.eventoId === eventoSel.id : true;
+      const matchSearch = p.nombre.toLowerCase().includes(search.toLowerCase());
+      const matchCat = categoria === 'Todas' || p.categoria === categoria;
+      const matchStock = soloStock ? p.stock > 0 : true;
+      const matchDesc = p.descuento >= descuentoMin;
+      return matchEvento && matchSearch && matchCat && matchStock && matchDesc;
+    })
+    .sort((a, b) => {
+      if (ordenar === 'precio-asc') return a.precioEvento - b.precioEvento;
+      if (ordenar === 'precio-desc') return b.precioEvento - a.precioEvento;
+      if (ordenar === 'descuento') return b.descuento - a.descuento;
+      if (ordenar === 'stock') return b.stock - a.stock;
+      return b.visitas - a.visitas; // relevancia
+    });
 
   const estaEnCarrito = (id) => carrito.some(i => i.id === id);
   const yaComprado = (id) => misCompras.includes(id);
@@ -240,6 +253,26 @@ export default function Marketplace() {
               ))}
             </div>
           </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <select className="input" style={{ height: 36, fontSize: 13 }} value={ordenar} onChange={e => setOrdenar(e.target.value)}>
+              <option value="relevancia">Más relevantes</option>
+              <option value="precio-asc">Menor precio</option>
+              <option value="precio-desc">Mayor precio</option>
+              <option value="descuento">Mayor descuento</option>
+              <option value="stock">Mayor stock</option>
+            </select>
+            <select className="input" style={{ height: 36, fontSize: 13 }} value={descuentoMin} onChange={e => setDescuentoMin(Number(e.target.value))}>
+              <option value={0}>Cualquier descuento</option>
+              <option value={20}>Desde 20% off</option>
+              <option value={30}>Desde 30% off</option>
+              <option value={40}>Desde 40% off</option>
+              <option value={50}>Desde 50% off</option>
+            </select>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+              <input type="checkbox" checked={soloStock} onChange={e => setSoloStock(e.target.checked)} />
+              Con stock
+            </label>
+          </div>
           <button className="btn btn-primary" onClick={() => setShowCarrito(true)} style={{ position: 'relative' }}>
             <ShoppingCart size={16} /> Mi Carrito
             {carrito.length > 0 && (
@@ -251,6 +284,15 @@ export default function Marketplace() {
         </div>
 
         {/* Products grid */}
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
+          {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''} encontrado{productosFiltrados.length !== 1 ? 's' : ''}
+          {(descuentoMin > 0 || soloStock || ordenar !== 'relevancia') && (
+            <button onClick={() => { setDescuentoMin(0); setSoloStock(false); setOrdenar('relevancia'); }}
+              style={{ marginLeft: 10, fontSize: 12, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+              Limpiar filtros
+            </button>
+          )}
+        </div>
         {productosFiltrados.length === 0 ? (
           <div className="empty-state card">
             <p>No se encontraron productos con los filtros seleccionados.</p>
