@@ -109,12 +109,19 @@ export default function ProductCard({ producto, onComprar }) {
           <span>Stock: <strong>{producto.stock}</strong> unidades</span>
         </div>
 
-        <button className="btn btn-primary btn-sm" style={{ width: '100%' }}
-          onClick={() => onComprar?.(producto)}>
-          <ShoppingCart size={14} />
-          Agregar al carrito
-        </button>
+        <div style={{ display: 'flex', gap: 0 }}>
+          <button onClick={() => setShowModal(true)}
+            style={{ flex: 1, height: 40, background: 'var(--bg)', border: '1px solid var(--border)', borderLeft: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', borderRadius: '0 0 0 8px' }}>
+            Ver detalle
+          </button>
+          <button className="btn btn-primary"
+            style={{ flex: 2, borderRadius: '0 0 8px 0', height: 40, fontSize: 13 }}
+            onClick={() => onComprar?.(producto)}>
+            <ShoppingCart size={14} /> Agregar
+          </button>
+        </div>
       </div>
     </div>
+      {showModal && <ProductModal producto={producto} onClose={() => setShowModal(false)} onComprar={onComprar} />}
   );
 }
