@@ -59,7 +59,10 @@ export default function MisCompras() {
                 <tbody>
                   {historial.map(c => (
                     <tr key={c.id}>
-                      <td style={{ fontWeight: 600 }}>{c.producto?.nombre || c.productoId}</td>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{c.producto?.nombre || c.productoId}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.producto?.empresa?.nombre || '—'}</div>
+                      </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{c.evento?.nombre || '—'}</td>
                       <td style={{ fontSize: 13, color: 'var(--text-muted)' }}>{new Date(c.fecha).toLocaleDateString('es-CL')}</td>
                       <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${c.monto.toLocaleString('es-CL')}</td>

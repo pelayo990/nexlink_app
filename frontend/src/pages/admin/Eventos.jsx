@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search, Plus, X, Calendar, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Topbar from '../../components/Topbar';
 import EventoCard from '../../components/EventoCard';
 import api from '../../services/api';
@@ -165,6 +166,7 @@ export default function AdminEventos() {
 
   useEffect(() => { cargar(); }, []);
 
+  const navigate = useNavigate();
   const handleSave = () => { setModal(null); cargar(); };
   const [eliminando, setEliminando] = useState(null);
 
@@ -238,6 +240,7 @@ export default function AdminEventos() {
               <div key={ev.id} style={{ position: 'relative' }}>
                 <EventoCard evento={ev} showActions />
                 <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6 }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/empresa/eventos/${ev.id}`)}>Ver</button>
                   <button className="btn btn-secondary btn-sm" onClick={() => setModal(ev)}>Editar</button>
                   <button className="btn btn-ghost btn-sm" style={{ color: '#EF4444', background: '#FEF2F2' }}
                     onClick={() => eliminar(ev.id, ev.nombre)}

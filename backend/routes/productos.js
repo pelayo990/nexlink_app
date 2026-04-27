@@ -19,7 +19,6 @@ router.get('/', authMiddleware, async (req, res) => {
       select: { eventoId: true },
     });
     const eventosIds = eventosInvitados.map(e => e.eventoId);
-    console.log('Colaborador empresaId:', empresaId, 'eventosIds:', eventosIds);
     if (eventosIds.length === 0) {
       return res.json([]);
     }

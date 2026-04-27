@@ -7,7 +7,14 @@ const ESTADO_MAP = {
   finalizado:{ label: 'Finalizado', cls: 'badge-gray' },
 };
 
-const MARCA_COLORS = { m1: '#1428A0', m2: '#CC0000', m3: '#000000', m4: '#E4003A' };
+const EMPRESA_COLORS = ['#4F46E5','#028090','#10B981','#F59E0B','#EF4444','#7C3AED','#0EA5E9','#EC4899'];
+
+function strToColor(str) {
+  if (!str) return EMPRESA_COLORS[0];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return EMPRESA_COLORS[Math.abs(hash) % EMPRESA_COLORS.length];
+}
 
 function fmt(dateStr) {
   return new Date(dateStr).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -16,7 +23,7 @@ function fmt(dateStr) {
 export default function EventoCard({ evento, showActions = false, onEdit, onView }) {
   const navigate = useNavigate();
   const estado = ESTADO_MAP[evento.estado] || ESTADO_MAP.finalizado;
-  const color = MARCA_COLORS[evento.marcaId] || '#4F46E5';
+  const color = strToColor(evento.empresaId || evento.marcaId);
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden', transition: 'box-shadow .2s' }}
