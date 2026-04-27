@@ -1,31 +1,36 @@
-import { useState } from 'react';
-import { User, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Lock, CheckCircle, AlertCircle, Star } from 'lucide-react';
 import Topbar from '../components/Topbar';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const ROL_LABELS = {
   admin: 'Administrador NexLink',
-  marca: 'Portal Marca',
   empresa: 'Portal Empresa',
   colaborador: 'Colaborador',
 };
 
 const ROL_COLORS = {
   admin: 'linear-gradient(135deg,#1E2761,#4F46E5)',
-  marca: 'linear-gradient(135deg,#065A82,#1C7293)',
   empresa: 'linear-gradient(135deg,#028090,#02C39A)',
   colaborador: 'linear-gradient(135deg,#4F46E5,#7C3AED)',
 };
 
 export default function Perfil() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [tab, setTab] = useState('info');
   const [pwForm, setPwForm] = useState({ actual: '', nueva: '', confirmar: '' });
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState(null); // { tipo: 'ok'|'error', texto }
+  const [msg, setMsg] = useState(null);
+  const [colaboradorData, setColaboradorData] = useState(null);
 
   const setPw = (k, v) => setPwForm(f => ({ ...f, [k]: v }));
+
+  useEffect(() => {
+    if (user?.rol === 'colaborador' && user?.colaboradorId) {
+      api.get(`/colaboradores/${user.colaboradorId}`).then(r => setColaboradorData(r.data)).catch(() => {});
+    }
+  }, [user]);
 
   const cambiarPassword = async () => {
     if (!pwForm.actual || !pwForm.nueva || !pwForm.confirmar)
@@ -51,6 +56,20 @@ export default function Perfil() {
     }
   };
 
+  const infoItems = [
+    { label: 'Nombre completo', value: user?.nombre },
+    { label: 'Email', value: user?.email },
+    { label: 'Rol', value: ROL_LABELS[user?.rol] },
+    ...(colaboradorData ? [
+      { label: 'Empresa', value: colaboradorData.empresa?.nombre },
+      { label: 'Cargo', value: colaboradorData.cargo || '—' },
+      { label: 'Área', value: colaboradorData.area || '—' },
+      { label: 'RUT', value: colaboradorData.rut || '—' },
+      { label: 'Teléfono', value: colaboradorData.telefono || '—' },
+    ] : []),
+    { label: 'ID de cuenta', value: user?.id },
+  ];
+
   return (
     <>
       <Topbar title="Mi Perfil" subtitle="Gestiona tu información personal" />
@@ -61,7 +80,7 @@ export default function Perfil() {
           <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800, flexShrink: 0 }}>
             {user?.avatar}
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontSize: 22, fontWeight: 800 }}>{user?.nombre}</div>
             <div style={{ fontSize: 14, opacity: .85, marginTop: 2 }}>{user?.email}</div>
             <div style={{ marginTop: 8 }}>
@@ -70,6 +89,15 @@ export default function Perfil() {
               </span>
             </div>
           </div>
+          {colaboradorData && (
+            <div style={{ textAlign: 'center', background: 'rgba(255,255,255,.15)', borderRadius: 12, padding: '12px 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                <Star size={18} fill="#FCD34D" color="#FCD34D" />
+                <span style={{ fontSize: 24, fontWeight: 800 }}>{colaboradorData.puntos}</span>
+              </div>
+              <div style={{ fontSize: 12, opacity: .8, marginTop: 2 }}>Puntos</div>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -89,19 +117,31 @@ export default function Perfil() {
         {tab === 'info' && (
           <div className="card">
             <div className="section-title" style={{ marginBottom: 20 }}>Información de la cuenta</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[
-                { label: 'Nombre completo', value: user?.nombre },
-                { label: 'Email', value: user?.email },
-                { label: 'Rol', value: ROL_LABELS[user?.rol] },
-                { label: 'ID de cuenta', value: user?.id },
-              ].map(item => (
-                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {infoItems.map((item, i) => (
+                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i < infoItems.length - 1 ? '1px solid var(--border)' : 'none' }}>
                   <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{item.label}</span>
                   <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.value}</span>
                 </div>
               ))}
             </div>
+
+            {colaboradorData && colaboradorData.compras?.length > 0 && (
+              <div style={{ marginTop: 24 }}>
+                <div className="section-title" style={{ marginBottom: 16 }}>Últimas compras</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {colaboradorData.compras.slice(0, 5).map(c => (
+                    <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--bg)', borderRadius: 8 }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{c.producto?.nombre || c.productoId}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(c.fecha).toLocaleDateString('es-CL')}</div>
+                      </div>
+                      <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 14 }}>${c.monto.toLocaleString('es-CL')}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -109,14 +149,12 @@ export default function Perfil() {
         {tab === 'password' && (
           <div className="card">
             <div className="section-title" style={{ marginBottom: 20 }}>Cambiar contraseña</div>
-
             {msg && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 8, marginBottom: 20, fontSize: 13, fontWeight: 600, background: msg.tipo === 'ok' ? '#D1FAE5' : '#FEE2E2', color: msg.tipo === 'ok' ? '#065F46' : '#991B1B' }}>
                 {msg.tipo === 'ok' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
                 {msg.texto}
               </div>
             )}
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña actual</label>
@@ -131,7 +169,6 @@ export default function Perfil() {
                 <input className="input" type="password" value={pwForm.confirmar} onChange={e => setPw('confirmar', e.target.value)} placeholder="Repite la contraseña" style={{ width: '100%' }} />
               </div>
             </div>
-
             <button className="btn btn-primary" style={{ marginTop: 24, width: '100%', height: 44 }} onClick={cambiarPassword} disabled={loading}>
               {loading ? 'Actualizando...' : 'Actualizar contraseña'}
             </button>
