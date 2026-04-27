@@ -5,7 +5,7 @@ import ProductCard from '../../components/ProductCard';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
-const CATEGORIAS = ['Todas', 'Electrónica', 'Moda', 'Hogar', 'Deportes', 'Alimentos'];
+const CATEGORIAS = ['Todas', 'Electrónica', 'Moda', 'Hogar', 'Deportes', 'Alimentos', 'Otro'];
 
 function CountdownTimer({ fechaFin }) {
   const [tiempo, setTiempo] = useState('');
@@ -22,7 +22,6 @@ function CountdownTimer({ fechaFin }) {
     const t = setInterval(calc, 60000);
     return () => clearInterval(t);
   }, [fechaFin]);
-
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#EF4444' }}>
       <Clock size={13} /> {tiempo}
@@ -51,19 +50,19 @@ function CartModal({ items, onClose, onComprar, loading, error }) {
         )}
 
         {items.length === 0 ? (
-          <div className="empty-state">
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: 12 }}>
             <ShoppingCart size={48} />
-            <p>Tu carrito está vacío</p>
+            <p style={{ fontSize: 14 }}>Tu carrito está vacío</p>
           </div>
         ) : (
           <>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
               {items.map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 12, padding: 12, background: 'var(--bg)', borderRadius: 10 }}>
-                  <div style={{ width: 50, height: 50, background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>📦</div>
+                  <div style={{ width: 50, height: 50, background: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>📦</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{item.nombre}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.marca?.nombre}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.empresa?.nombre}</div>
                     <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--primary)', marginTop: 2 }}>
                       ${item.precioEvento.toLocaleString('es-CL')}
                     </div>
@@ -143,7 +142,7 @@ export default function Marketplace() {
       if (ordenar === 'precio-desc') return b.precioEvento - a.precioEvento;
       if (ordenar === 'descuento') return b.descuento - a.descuento;
       if (ordenar === 'stock') return b.stock - a.stock;
-      return b.visitas - a.visitas; // relevancia
+      return b.visitas - a.visitas;
     });
 
   const estaEnCarrito = (id) => carrito.some(i => i.id === id);
@@ -169,7 +168,7 @@ export default function Marketplace() {
       cargarDatos();
       setTimeout(() => setCompraOk(false), 3500);
     } catch (e) {
-      setErrorCompra(e.response?.data?.error || 'Error al procesar la compra. Intenta nuevamente.');
+      setErrorCompra(e.response?.data?.error || 'Error al procesar la compra.');
     } finally {
       setComprando(false);
     }
@@ -193,7 +192,7 @@ export default function Marketplace() {
         {/* User stats */}
         {dashData && (
           <div style={{ display: 'flex', gap: 12, marginBottom: 24, padding: '16px 20px', background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius: 14, color: '#fff', alignItems: 'center' }}>
-            <div className="avatar avatar-lg" style={{ background: 'rgba(255,255,255,.2)' }}>{user?.avatar}</div>
+            <div className="avatar avatar-lg" style={{ background: 'rgba(255,255,255,.2)', flexShrink: 0 }}>{user?.avatar}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 16 }}>Hola, {user?.nombre?.split(' ')[0]} 👋</div>
               <div style={{ fontSize: 13, opacity: .8 }}>Tienes acceso a {dashData.stats.eventosDisponibles} eventos exclusivos</div>
@@ -227,7 +226,7 @@ export default function Marketplace() {
             {eventos.map(ev => (
               <div key={ev.id} onClick={() => setEventoSel(eventoSel?.id === ev.id ? null : ev)} style={{ flexShrink: 0, padding: '14px 20px', borderRadius: 12, cursor: 'pointer', border: `2px solid ${eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--border)'}`, background: eventoSel?.id === ev.id ? '#EEF2FF' : '#fff', transition: 'all .15s', minWidth: 200 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)' }}>{ev.marca?.nombre}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)' }}>{ev.marca?.nombre || ev.empresa?.nombre}</span>
                   <CountdownTimer fechaFin={ev.fechaFin} />
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: eventoSel?.id === ev.id ? 'var(--primary)' : 'var(--text-primary)' }}>{ev.nombre}</div>
@@ -237,9 +236,8 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Filters + carrito */}
+        {/* Filtros */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-          {/* Fila 1: todo en una línea */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 160 }}>
               <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -274,7 +272,6 @@ export default function Marketplace() {
             </button>
           </div>
 
-          {/* Fila 2: categorías */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {CATEGORIAS.map(cat => (
               <button key={cat} onClick={() => setCategoria(cat)} style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: `1.5px solid ${categoria === cat ? 'var(--primary)' : 'var(--border)'}`, background: categoria === cat ? 'var(--primary)' : '#fff', color: categoria === cat ? '#fff' : 'var(--text-secondary)', transition: 'all .15s' }}>
@@ -284,7 +281,7 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Products grid */}
+        {/* Contador resultados */}
         <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
           {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''} encontrado{productosFiltrados.length !== 1 ? 's' : ''}
           {(descuentoMin > 0 || soloStock || ordenar !== 'relevancia') && (
@@ -294,8 +291,10 @@ export default function Marketplace() {
             </button>
           )}
         </div>
+
+        {/* Productos */}
         {productosFiltrados.length === 0 ? (
-          <div className="empty-state card">
+          <div className="card" style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>
             <p>No se encontraron productos con los filtros seleccionados.</p>
           </div>
         ) : (
