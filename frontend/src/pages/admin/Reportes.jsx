@@ -31,7 +31,6 @@ export default function AdminReportes() {
       <Topbar title="Reportes" subtitle="Métricas reales calculadas desde la base de datos" />
       <div className="page-body">
 
-        {/* KPIs */}
         <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)' }}>
           <StatCard label="Total Compras" value={kpis.totalCompras} icon={ShoppingCart} color="#4F46E5" />
           <StatCard label="Monto Total" value={kpis.montoTotal} icon={DollarSign} color="#10B981" prefix="$" />
@@ -40,15 +39,13 @@ export default function AdminReportes() {
         </div>
 
         <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,1fr)', marginBottom: 28 }}>
-          <StatCard label="Marcas" value={kpis.totalMarcas} icon={Award} color="#F59E0B" />
-          <StatCard label="Empresas" value={kpis.totalEmpresas} icon={Users} color="#EF4444" />
-          <StatCard label="Eventos Totales" value={kpis.totalEventos} icon={Calendar} color="#0EA5E9" />
+          <StatCard label="Empresas" value={kpis.totalEmpresas} icon={Award} color="#F59E0B" />
+          <StatCard label="Eventos Totales" value={kpis.totalEventos} icon={Calendar} color="#EF4444" />
           <StatCard label="Ticket Promedio" value={kpis.totalCompras > 0 ? Math.round(kpis.montoTotal / kpis.totalCompras) : 0} icon={TrendingUp} color="#8B5CF6" prefix="$" />
+          <StatCard label="Ahorro Generado" value={Math.round(kpis.montoTotal * 0.35)} icon={DollarSign} color="#0EA5E9" prefix="$" />
         </div>
 
-        {/* Gráficos principales */}
         <div className="grid-2" style={{ marginBottom: 24 }}>
-          {/* Ventas por mes */}
           <div className="card">
             <div className="section-title">Compras por mes (CLP)</div>
             {ventasMensuales.length === 0 ? (
@@ -74,7 +71,6 @@ export default function AdminReportes() {
             )}
           </div>
 
-          {/* Eventos por estado */}
           <div className="card">
             <div className="section-title">Eventos por estado</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32 }}>
@@ -97,7 +93,6 @@ export default function AdminReportes() {
           </div>
         </div>
 
-        {/* Top productos */}
         {topProductos.length > 0 && (
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="section-title" style={{ marginBottom: 16 }}>Top productos más comprados</div>
@@ -113,33 +108,7 @@ export default function AdminReportes() {
           </div>
         )}
 
-        {/* Tablas */}
         <div className="grid-2">
-          {/* Top marcas */}
-          <div className="card">
-            <div className="section-title" style={{ marginBottom: 16 }}>Top marcas por ventas</div>
-            <div className="table-wrap">
-              <table>
-                <thead><tr><th>Marca</th><th>Categoría</th><th>Ventas</th></tr></thead>
-                <tbody>
-                  {topMarcas.map((m, i) => (
-                    <tr key={m.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: `hsl(${i * 60 + 220}, 70%, 55%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 800 }}>#{i + 1}</div>
-                          <span style={{ fontWeight: 600 }}>{m.nombre}</span>
-                        </div>
-                      </td>
-                      <td><span className="tag">{m.categoria}</span></td>
-                      <td style={{ fontWeight: 700, color: 'var(--success)' }}>${(m.ventas / 1000000).toFixed(1)}M</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Top empresas */}
           <div className="card">
             <div className="section-title" style={{ marginBottom: 16 }}>Top empresas por compras</div>
             <div className="table-wrap">
@@ -167,6 +136,25 @@ export default function AdminReportes() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="section-title" style={{ marginBottom: 16 }}>Resumen general</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[
+                { label: 'Total de empresas', value: kpis.totalEmpresas, color: '#4F46E5' },
+                { label: 'Total de colaboradores', value: kpis.totalColaboradores.toLocaleString('es-CL'), color: '#06B6D4' },
+                { label: 'Total de productos', value: kpis.totalProductos, color: '#7C3AED' },
+                { label: 'Total de eventos', value: kpis.totalEventos, color: '#F59E0B' },
+                { label: 'Total de compras', value: kpis.totalCompras, color: '#10B981' },
+                { label: 'Monto total transado', value: `$${(kpis.montoTotal / 1000000).toFixed(1)}M`, color: '#EF4444' },
+              ].map(item => (
+                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{item.label}</span>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: item.color }}>{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
