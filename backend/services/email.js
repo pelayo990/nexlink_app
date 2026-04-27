@@ -60,3 +60,31 @@ const enviarBienvenida = async ({ nombre, email, empresa }) => {
 };
 
 module.exports = { enviarVerificacion, enviarBienvenida };
+
+const enviarNotificacionNuevoColaborador = async ({ empresaEmail, empresaNombre, colaboradorNombre, colaboradorEmail, cargo }) => {
+  await resend.emails.send({
+    from: 'NexLink <noreply@groopa.cl>',
+    to: empresaEmail,
+    subject: `Nuevo colaborador registrado — ${colaboradorNombre}`,
+    html: `
+      <div style="font-family: system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <h1 style="font-size: 22px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">Nuevo colaborador en ${empresaNombre} 👋</h1>
+        <p style="font-size: 15px; color: #64748B; line-height: 1.6; margin-bottom: 24px;">
+          Un nuevo colaborador se ha registrado y verificado su cuenta en NexLink.
+        </p>
+        <div style="background: #F8F7FF; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;">
+          <div style="margin-bottom: 8px;"><strong>Nombre:</strong> ${colaboradorNombre}</div>
+          <div style="margin-bottom: 8px;"><strong>Email:</strong> ${colaboradorEmail}</div>
+          <div><strong>Cargo:</strong> ${cargo || 'No especificado'}</div>
+        </div>
+        <a href="${FRONTEND_URL}/empresa/colaboradores" style="display: inline-block; background: linear-gradient(135deg,#4F46E5,#7C3AED); color: white; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 700;">
+          Ver colaboradores
+        </a>
+        <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 32px 0;">
+        <p style="font-size: 12px; color: #CBD5E1; text-align: center;">© 2024 NexLink</p>
+      </div>
+    `,
+  });
+};
+
+module.exports = { enviarVerificacion, enviarBienvenida, enviarNotificacionNuevoColaborador };

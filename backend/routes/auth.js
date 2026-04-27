@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
-const { enviarVerificacion, enviarBienvenida } = require('../services/email');
+const { enviarVerificacion, enviarBienvenida, enviarNotificacionNuevoColaborador } = require('../services/email');
 
 const prisma = new PrismaClient();
 
@@ -158,8 +158,20 @@ router.get('/verificar', async (req, res) => {
   try {
     const empresa = await prisma.empresa.findUnique({ where: { id: user.empresaId } });
     await enviarBienvenida({ nombre: user.nombre, email: user.email, empresa: empresa?.nombre });
+
+    // Notificar al RRHH de la empresa
+    if (empresa?.emailRRHH) {
+      const colaborador = await prisma.colaborador.findUnique({ where: { id: user.colaboradorId } });
+      await enviarNotificacionNuevoColaborador({
+        empresaEmail: empresa.emailRRHH,
+        empresaNombre: empresa.nombre,
+        colaboradorNombre: user.nombre,
+        colaboradorEmail: user.email,
+        cargo: colaborador?.cargo,
+      });
+    }
   } catch (e) {
-    console.error('Error enviando bienvenida:', e);
+    console.error('Error enviando emails de verificación:', e);
   }
 
   res.json({ message: '¡Email verificado! Ya puedes iniciar sesión.', verificado: true });
