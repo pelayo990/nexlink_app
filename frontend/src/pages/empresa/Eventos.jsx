@@ -41,7 +41,7 @@ function Modal({ evento, onClose, onSave, empresaId }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)' }} onClick={onClose} />
-      <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: 520, maxHeight: '90vh', overflowY: 'auto', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
+      <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto', overflowX: 'hidden', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700 }}>{evento?.id ? 'Editar Evento' : 'Nuevo Evento'}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
@@ -57,13 +57,13 @@ function Modal({ evento, onClose, onSave, empresaId }) {
             <textarea className="input" value={form.descripcion} onChange={e => set('descripcion', e.target.value)} rows={3} style={{ width: '100%', resize: 'vertical' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Fecha inicio *</label>
-              <input className="input" type="datetime-local" value={form.fechaInicio} onChange={e => set('fechaInicio', e.target.value)} style={{ width: '100%' }} />
+              <input className="input" type="datetime-local" value={form.fechaInicio} onChange={e => set('fechaInicio', e.target.value)} style={{ width: '100%', minWidth: 0 }} />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Fecha fin *</label>
-              <input className="input" type="datetime-local" value={form.fechaFin} onChange={e => set('fechaFin', e.target.value)} style={{ width: '100%' }} />
+              <input className="input" type="datetime-local" value={form.fechaFin} onChange={e => set('fechaFin', e.target.value)} style={{ width: '100%', minWidth: 0 }} />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
