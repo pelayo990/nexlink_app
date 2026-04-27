@@ -10,14 +10,24 @@ export default function MisCompras() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.colaboradorId)
-      api.get('/compras/mis-compras').then(r => setData({ historialCompras: r.data, stats: null })).finally(() => setLoading(false));
+    if (user?.colaboradorId) {
+      Promise.all([
+        api.get('/compras/mis-compras'),
+        api.get(`/dashboard/colaborador/${user.colaboradorId}`),
+      ]).then(([comprasRes, dashRes]) => {
+        setData({
+          historialCompras: comprasRes.data,
+          stats: dashRes.data.stats,
+          eventosDisponibles: dashRes.data.eventosDisponibles || [],
+        });
+      }).finally(() => setLoading(false));
+    }
   }, [user]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Cargando…</div>;
 
   const historial = data?.historialCompras || [];
-  const stats = {
+  const stats = data?.stats || {
     comprasTotales: historial.length,
     puntos: historial.reduce((s, c) => s + Math.floor(c.monto / 1000), 0),
     montoAhorrado: historial.reduce((s, c) => s + (c.monto * 0.35), 0),
