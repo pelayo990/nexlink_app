@@ -238,30 +238,43 @@ export default function Marketplace() {
         </div>
 
         {/* Filters + carrito */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+          {/* Fila 1: búsqueda + carrito */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div style={{ position: 'relative', flex: 1, maxWidth: 300 }}>
               <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input className="input" placeholder="Buscar productos..." style={{ paddingLeft: 32, width: 220, height: 38 }}
+              <input className="input" placeholder="Buscar productos..." style={{ paddingLeft: 32, width: '100%', height: 38 }}
                 value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {CATEGORIAS.map(cat => (
-                <button key={cat} onClick={() => setCategoria(cat)} style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: `1.5px solid ${categoria === cat ? 'var(--primary)' : 'var(--border)'}`, background: categoria === cat ? 'var(--primary)' : '#fff', color: categoria === cat ? '#fff' : 'var(--text-secondary)', transition: 'all .15s' }}>
-                  {cat}
-                </button>
-              ))}
-            </div>
+            <button className="btn btn-primary" onClick={() => setShowCarrito(true)} style={{ position: 'relative', flexShrink: 0 }}>
+            <ShoppingCart size={16} /> Mi Carrito
+            {carrito.length > 0 && (
+              <span style={{ position: 'absolute', top: -8, right: -8, background: '#EF4444', color: '#fff', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, border: '2px solid #fff' }}>
+                {carrito.length}
+              </span>
+            )}
+          </button>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <select className="input" style={{ height: 36, fontSize: 13 }} value={ordenar} onChange={e => setOrdenar(e.target.value)}>
+
+          {/* Fila 2: categorías */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {CATEGORIAS.map(cat => (
+              <button key={cat} onClick={() => setCategoria(cat)} style={{ padding: '6px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: `1.5px solid ${categoria === cat ? 'var(--primary)' : 'var(--border)'}`, background: categoria === cat ? 'var(--primary)' : '#fff', color: categoria === cat ? '#fff' : 'var(--text-secondary)', transition: 'all .15s' }}>
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Fila 3: filtros avanzados */}
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <select className="input" style={{ height: 36, fontSize: 13, width: 'auto' }} value={ordenar} onChange={e => setOrdenar(e.target.value)}>
               <option value="relevancia">Más relevantes</option>
               <option value="precio-asc">Menor precio</option>
               <option value="precio-desc">Mayor precio</option>
               <option value="descuento">Mayor descuento</option>
               <option value="stock">Mayor stock</option>
             </select>
-            <select className="input" style={{ height: 36, fontSize: 13 }} value={descuentoMin} onChange={e => setDescuentoMin(Number(e.target.value))}>
+            <select className="input" style={{ height: 36, fontSize: 13, width: 'auto' }} value={descuentoMin} onChange={e => setDescuentoMin(Number(e.target.value))}>
               <option value={0}>Cualquier descuento</option>
               <option value={20}>Desde 20% off</option>
               <option value={30}>Desde 30% off</option>
@@ -270,17 +283,9 @@ export default function Marketplace() {
             </select>
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
               <input type="checkbox" checked={soloStock} onChange={e => setSoloStock(e.target.checked)} />
-              Con stock
+              Solo con stock
             </label>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowCarrito(true)} style={{ position: 'relative' }}>
-            <ShoppingCart size={16} /> Mi Carrito
-            {carrito.length > 0 && (
-              <span style={{ position: 'absolute', top: -8, right: -8, background: '#EF4444', color: '#fff', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, border: '2px solid #fff' }}>
-                {carrito.length}
-              </span>
-            )}
-          </button>
         </div>
 
         {/* Products grid */}
