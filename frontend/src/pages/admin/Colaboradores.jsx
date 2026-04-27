@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import RutInput from '../../components/RutInput';
 import { Search, Trash2, X, UserPlus } from 'lucide-react';
 import Topbar from '../../components/Topbar';
+import RutInput from '../../components/RutInput';
 import api from '../../services/api';
 
 const EMPTY_EDIT = { nombre: '', email: '', cargo: '', area: '', rut: '', telefono: '', estado: 'activo' };
@@ -53,11 +53,11 @@ function Modal({ colaborador, onClose, onSave, empresas }) {
         {creado ? (
           <div>
             <div style={{ background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
-              <div style={{ fontWeight: 700, color: '#065F46', marginBottom: 8 }}>✅ Colaborador creado exitosamente</div>
-              <div style={{ fontSize: 13, color: '#065F46', marginBottom: 10 }}>Comparte estas credenciales con el colaborador. Deberá cambiar su contraseña al primer login.</div>
+              <div style={{ fontWeight: 700, color: '#065F46', marginBottom: 8 }}>Colaborador creado exitosamente</div>
+              <div style={{ fontSize: 13, color: '#065F46', marginBottom: 10 }}>Comparte estas credenciales. Deberá cambiar su contraseña al primer login.</div>
               <div style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', fontFamily: 'monospace', fontSize: 13 }}>
-                <div>📧 Email: <strong>{creado.email}</strong></div>
-                <div>🔑 Contraseña: <strong>{creado.password}</strong></div>
+                <div>Email: <strong>{creado.email}</strong></div>
+                <div>Contraseña: <strong>{creado.password}</strong></div>
               </div>
             </div>
             <button className="btn btn-primary" style={{ width: '100%' }} onClick={onSave}>Cerrar</button>
@@ -95,14 +95,12 @@ function Modal({ colaborador, onClose, onSave, empresas }) {
                   <input className="input" value={form.telefono || ''} onChange={e => set('telefono', e.target.value)} placeholder="+56 9 1234 5678" style={{ width: '100%' }} />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Estado</label>
-                  <select className="input" value={form.estado} onChange={e => set('estado', e.target.value)} style={{ width: '100%' }}>
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
-                </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Estado</label>
+                <select className="input" value={form.estado} onChange={e => set('estado', e.target.value)} style={{ width: '100%' }}>
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                </select>
               </div>
 
               {esNuevo && (
@@ -116,8 +114,7 @@ function Modal({ colaborador, onClose, onSave, empresas }) {
                   </div>
                   <div>
                     <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña provisoria *</label>
-                    <input className="input" type="text" value={form.passwordProvisoria} onChange={e => set('passwordProvisoria', e.target.value)}
-                      placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
+                    <input className="input" type="text" value={form.passwordProvisoria} onChange={e => set('passwordProvisoria', e.target.value)} placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
                     <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>El colaborador deberá cambiarla en su primer login.</p>
                   </div>
                 </>
@@ -193,7 +190,7 @@ export default function AdminColaboradores() {
       />}
 
       <div className="page-body">
-        <div className="page-header">
+        <div className="page-header" style={{ flexWrap: 'wrap', gap: 8 }}>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
@@ -276,4 +273,3 @@ export default function AdminColaboradores() {
     </>
   );
 }
-// Mon Apr 27 15:31:00 UTC 2026

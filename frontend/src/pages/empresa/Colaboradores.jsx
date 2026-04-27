@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
-import RutInput from '../../components/RutInput';
 import { Search, Star, Download, Trash2, X, UserPlus } from 'lucide-react';
 import Topbar from '../../components/Topbar';
+import RutInput from '../../components/RutInput';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 function Modal({ colaborador, onClose, onSave, empresaId }) {
+  const esNuevo = !colaborador?.id;
   const [form, setForm] = useState(colaborador || { nombre: '', email: '', cargo: '', area: '', rut: '', telefono: '', estado: 'activo', passwordProvisoria: '' });
-  const [creado, setCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [creado, setCreado] = useState(null);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = async () => {
     if (!form.nombre || !form.email) return setError('Nombre y email son obligatorios');
+    if (esNuevo && (!form.passwordProvisoria || form.passwordProvisoria.length < 6))
+      return setError('La contraseña provisoria debe tener al menos 6 caracteres');
     setLoading(true);
     setError('');
     try {
-      if (colaborador?.id) {
+      if (!esNuevo) {
         await api.put(`/colaboradores/${colaborador.id}`, form);
         onSave();
       } else {
@@ -35,77 +38,81 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)' }} onClick={onClose} />
-      <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: 480, maxHeight: '90vh', overflowY: 'auto', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
+      <div style={{ position: 'relative', background: '#fff', borderRadius: 16, width: 520, maxHeight: '90vh', overflowY: 'auto', padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>{colaborador?.id ? 'Editar Colaborador' : 'Nuevo Colaborador'}</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700 }}>{esNuevo ? 'Nuevo Colaborador' : 'Editar Colaborador'}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={20} /></button>
         </div>
         {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{error}</div>}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nombre *</label>
-              <input className="input" value={form.nombre} onChange={e => set('nombre', e.target.value)} style={{ width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Email *</label>
-              <input className="input" type="email" value={form.email} onChange={e => set('email', e.target.value)} style={{ width: '100%' }} />
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Cargo</label>
-              <input className="input" value={form.cargo || ''} onChange={e => set('cargo', e.target.value)} style={{ width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Área</label>
-              <input className="input" value={form.area || ''} onChange={e => set('area', e.target.value)} style={{ width: '100%' }} />
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>RUT</label>
-              <RutInput value={form.rut || ''} onChange={v => set('rut', v)} />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Teléfono</label>
-              <input className="input" value={form.telefono || ''} onChange={e => set('telefono', e.target.value)} placeholder="+56 9 1234 5678" style={{ width: '100%' }} />
-            </div>
-          </div>
-          {!colaborador?.id && (
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña provisoria *</label>
-              <input className="input" type="text" value={form.passwordProvisoria} onChange={e => set('passwordProvisoria', e.target.value)}
-                placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>El colaborador podrá cambiarla desde su perfil.</p>
-            </div>
-          )}
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Estado</label>
-            <select className="input" value={form.estado} onChange={e => set('estado', e.target.value)} style={{ width: '100%' }}>
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-            </select>
-          </div>
-        </div>
-        {creado && (
-          <div style={{ background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
-            <div style={{ fontWeight: 700, color: '#065F46', marginBottom: 8 }}>✅ Colaborador creado exitosamente</div>
-            <div style={{ fontSize: 13, color: '#065F46' }}>Comparte estas credenciales con el colaborador:</div>
-            <div style={{ marginTop: 10, background: '#fff', borderRadius: 8, padding: '10px 14px', fontFamily: 'monospace', fontSize: 13 }}>
-              <div>📧 Email: <strong>{creado.email}</strong></div>
-              <div>🔑 Contraseña: <strong>{creado.password}</strong></div>
-            </div>
-            <button className="btn btn-primary" style={{ marginTop: 12, width: '100%' }} onClick={onSave}>Cerrar</button>
-          </div>
-        )}
-        {!creado && <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
-          <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Guardando...' : colaborador?.id ? 'Guardar cambios' : 'Crear Colaborador'}
-          </button>
-        </div>}
 
+        {creado ? (
+          <div>
+            <div style={{ background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, color: '#065F46', marginBottom: 8 }}>Colaborador creado exitosamente</div>
+              <div style={{ fontSize: 13, color: '#065F46', marginBottom: 10 }}>Deberá cambiar su contraseña al primer login.</div>
+              <div style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', fontFamily: 'monospace', fontSize: 13 }}>
+                <div>Email: <strong>{creado.email}</strong></div>
+                <div>Contraseña: <strong>{creado.password}</strong></div>
+              </div>
+            </div>
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={onSave}>Cerrar</button>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nombre *</label>
+                  <input className="input" value={form.nombre} onChange={e => set('nombre', e.target.value)} style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Email *</label>
+                  <input className="input" type="email" value={form.email} onChange={e => set('email', e.target.value)} style={{ width: '100%' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Cargo</label>
+                  <input className="input" value={form.cargo || ''} onChange={e => set('cargo', e.target.value)} style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Área</label>
+                  <input className="input" value={form.area || ''} onChange={e => set('area', e.target.value)} style={{ width: '100%' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>RUT</label>
+                  <RutInput value={form.rut || ''} onChange={v => set('rut', v)} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Teléfono</label>
+                  <input className="input" value={form.telefono || ''} onChange={e => set('telefono', e.target.value)} placeholder="+56 9 1234 5678" style={{ width: '100%' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Estado</label>
+                <select className="input" value={form.estado} onChange={e => set('estado', e.target.value)} style={{ width: '100%' }}>
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                </select>
+              </div>
+              {esNuevo && (
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Contraseña provisoria *</label>
+                  <input className="input" type="text" value={form.passwordProvisoria} onChange={e => set('passwordProvisoria', e.target.value)} placeholder="Mínimo 6 caracteres" style={{ width: '100%' }} />
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>El colaborador deberá cambiarla en su primer login.</p>
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 28, justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Guardando...' : esNuevo ? 'Crear Colaborador' : 'Guardar cambios'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -116,10 +123,9 @@ export default function EmpresaColaboradores() {
   const [colaboradores, setColaboradores] = useState([]);
   const [search, setSearch] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
-  const [filtroEmpresa, setFiltroEmpresa] = useState('todas');
   const [filtroArea, setFiltroArea] = useState('todas');
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null); // null | 'new' | colaborador
+  const [modal, setModal] = useState(null);
   const [eliminando, setEliminando] = useState(null);
 
   const cargar = () => {
@@ -142,11 +148,16 @@ export default function EmpresaColaboradores() {
     }
   };
 
-  const filtered = colaboradores.filter(c =>
-    c.nombre.toLowerCase().includes(search.toLowerCase()) ||
-    c.cargo?.toLowerCase().includes(search.toLowerCase()) ||
-    c.area?.toLowerCase().includes(search.toLowerCase())
-  );
+  const areas = [...new Set(colaboradores.map(c => c.area).filter(Boolean))];
+
+  const filtered = colaboradores.filter(c => {
+    const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase()) ||
+      c.cargo?.toLowerCase().includes(search.toLowerCase());
+    const matchEstado = filtroEstado === 'todos' || c.estado === filtroEstado;
+    const matchArea = filtroArea === 'todas' || c.area === filtroArea;
+    return matchSearch && matchEstado && matchArea;
+  });
 
   return (
     <>
@@ -154,7 +165,7 @@ export default function EmpresaColaboradores() {
       {modal && <Modal colaborador={modal === 'new' ? null : modal} empresaId={user?.empresaId} onClose={() => setModal(null)} onSave={() => { setModal(null); cargar(); }} />}
 
       <div className="page-body">
-        <div className="page-header">
+        <div className="page-header" style={{ flexWrap: 'wrap', gap: 8 }}>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
@@ -169,11 +180,13 @@ export default function EmpresaColaboradores() {
             <option value="todas">Todas las áreas</option>
             {areas.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
             <button className="btn btn-secondary" onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}/api/colaboradores/exportar`, '_blank')}>
-            <Download size={15} /> Exportar Excel
-          </button>
-            <button className="btn btn-primary" onClick={() => setModal('new')}><UserPlus size={15} /> Agregar Colaborador</button>
+              <Download size={15} /> Exportar Excel
+            </button>
+            <button className="btn btn-primary" onClick={() => setModal('new')}>
+              <UserPlus size={15} /> Agregar Colaborador
+            </button>
           </div>
         </div>
 
@@ -241,4 +254,3 @@ export default function EmpresaColaboradores() {
     </>
   );
 }
-// Mon Apr 27 15:31:00 UTC 2026
