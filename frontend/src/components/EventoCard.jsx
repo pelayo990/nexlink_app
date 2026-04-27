@@ -20,7 +20,7 @@ function fmt(dateStr) {
   return new Date(dateStr).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function EventoCard({ evento, showActions = false, onEdit }) {
+export default function EventoCard({ evento, showActions = false, onEdit, onDelete }) {
   const navigate = useNavigate();
   const estado = ESTADO_MAP[evento.estado] || ESTADO_MAP.finalizado;
   const color = strToColor(evento.empresaId || evento.marcaId);
@@ -89,6 +89,12 @@ export default function EventoCard({ evento, showActions = false, onEdit }) {
             <button className="btn btn-secondary btn-sm" style={{ height: 38, paddingLeft: 16, paddingRight: 16 }}
               onClick={() => onEdit?.(evento)}>
               Editar
+            </button>
+          )}
+          {onDelete && (
+            <button className="btn btn-ghost btn-sm" style={{ height: 38, paddingLeft: 12, paddingRight: 12, color: '#EF4444', background: '#FEF2F2' }}
+              onClick={() => onDelete(evento)}>
+              🗑
             </button>
           )}
         </div>

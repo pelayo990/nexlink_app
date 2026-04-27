@@ -147,10 +147,7 @@ export default function EmpresaEventos() {
         ) : (
           <div className="grid-3">
             {filtered.map(ev => (
-              <div key={ev.id} style={{ position: 'relative' }}>
-                <EventoCard evento={ev} showActions />
-                <button className="btn btn-secondary btn-sm" onClick={() => setModal(ev)} style={{ position: 'absolute', top: 12, right: 12 }}>Editar</button>
-              </div>
+              <EventoCard key={ev.id} evento={ev} showActions onEdit={ev => setModal(ev)} />
             ))}
           </div>
         )}

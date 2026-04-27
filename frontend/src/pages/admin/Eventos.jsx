@@ -237,18 +237,7 @@ export default function AdminEventos() {
         ) : (
           <div className="grid-3">
             {filtered.map(ev => (
-              <div key={ev.id} style={{ position: 'relative' }}>
-                <EventoCard evento={ev} showActions />
-                <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6 }}>
-                  <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/empresa/eventos/${ev.id}`)}>Ver</button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setModal(ev)}>Editar</button>
-                  <button className="btn btn-ghost btn-sm" style={{ color: '#EF4444', background: '#FEF2F2' }}
-                    onClick={() => eliminar(ev.id, ev.nombre)}
-                    disabled={eliminando === ev.id}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
+              <EventoCard key={ev.id} evento={ev} showActions onEdit={ev => setModal(ev)} onDelete={ev => eliminar(ev.id, ev.nombre)} />
             ))}
           </div>
         )}
