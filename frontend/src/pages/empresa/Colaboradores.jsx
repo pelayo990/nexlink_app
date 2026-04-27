@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import RutInput from '../../components/RutInput';
 import { Search, Star, Download, Trash2, X, UserPlus } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import { useAuth } from '../../context/AuthContext';
@@ -64,7 +65,7 @@ function Modal({ colaborador, onClose, onSave, empresaId }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>RUT</label>
-              <input className="input" value={form.rut || ''} onChange={e => set('rut', e.target.value)} placeholder="12.345.678-9" style={{ width: '100%' }} />
+              <RutInput value={form.rut || ''} onChange={v => set('rut', v)} />
             </div>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Teléfono</label>

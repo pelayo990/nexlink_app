@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import RutInput from '../../components/RutInput';
 import { Search, Plus, Building2, X, Trash2 } from 'lucide-react';
 import Topbar from '../../components/Topbar';
 import api from '../../services/api';
@@ -77,7 +78,7 @@ function Modal({ empresa, onClose, onSave }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>RUT</label>
-              <input className="input" value={form.rut} onChange={e => set('rut', e.target.value)} placeholder="97.006.000-6" style={{ width: '100%' }} />
+              <RutInput value={form.rut || ''} onChange={v => set('rut', v)} />
             </div>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Teléfono</label>
