@@ -54,7 +54,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 router.put('/:id', authMiddleware, async (req, res) => {
-  const { empresaId, ...rest } = req.body;
+  const { empresaId, empresa, id, ...rest } = req.body;
   const producto = await prisma.producto.update({
     where: { id: req.params.id },
     data: rest,
