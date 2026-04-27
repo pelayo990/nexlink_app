@@ -192,22 +192,22 @@ export default function AdminColaboradores() {
       />}
 
       <div className="page-body">
-        <div className="page-header" style={{ flexWrap: 'wrap', gap: 8 }}>
+        <div className="page-header" style={{ flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+          <select className="input" style={{ height: 38, fontSize: 13, width: 'auto', minWidth: 140 }} value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
             <option value="todos">Todos los estados</option>
             <option value="activo">Activos</option>
             <option value="inactivo">Inactivos</option>
           </select>
-          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroEmpresa} onChange={e => setFiltroEmpresa(e.target.value)}>
+          <select className="input" style={{ height: 38, fontSize: 13, width: 'auto', minWidth: 150 }} value={filtroEmpresa} onChange={e => setFiltroEmpresa(e.target.value)}>
             <option value="todas">Todas las empresas</option>
             {empresas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
           </select>
-          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroArea} onChange={e => setFiltroArea(e.target.value)}>
+          <select className="input" style={{ height: 38, fontSize: 13, width: 'auto', minWidth: 130 }} value={filtroArea} onChange={e => setFiltroArea(e.target.value)}>
             <option value="todas">Todas las áreas</option>
             {areas.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
