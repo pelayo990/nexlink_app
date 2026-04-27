@@ -151,9 +151,11 @@ export default function EmpresaColaboradores() {
   const areas = [...new Set(colaboradores.map(c => c.area).filter(Boolean))];
 
   const filtered = colaboradores.filter(c => {
-    const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.cargo?.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch = c.nombre.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q) ||
+      c.cargo?.toLowerCase().includes(q) ||
+      c.rut?.toLowerCase().replace(/[.\-]/g, '').includes(q.replace(/[.\-]/g, ''));
     const matchEstado = filtroEstado === 'todos' || c.estado === filtroEstado;
     const matchArea = filtroArea === 'todas' || c.area === filtroArea;
     return matchSearch && matchEstado && matchArea;
