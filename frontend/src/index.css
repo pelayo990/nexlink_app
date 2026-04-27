@@ -160,3 +160,43 @@ tbody tr:hover td { background: #F8FAFF; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
 .empty-state svg { margin: 0 auto 16px; opacity: .4; }
 .empty-state p { font-size: 15px; }
+
+/* ─── Responsive Mobile ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+
+  .app-layout { flex-direction: column; }
+  .main-content { margin-left: 0; }
+
+  .topbar {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .page-body { padding: 16px; }
+  .page-header { flex-wrap: wrap; gap: 10px; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .grid-3 { grid-template-columns: 1fr !important; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  .table-wrap { font-size: 12px; }
+  .table-wrap th, .table-wrap td { padding: 8px 10px; }
+
+  .card { padding: 16px; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* Botón hamburguesa — oculto en desktop, visible en mobile */
+.sidebar-toggle { display: none !important; }
+@media (max-width: 768px) {
+  .sidebar-toggle { display: flex !important; }
+  .main-content { padding-top: 56px; }
+  .topbar { padding-left: 56px; }
+}

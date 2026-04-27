@@ -1,4 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Menu, X as XIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Package, Calendar, Users, Building2,
@@ -42,14 +44,44 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const links = NAV[user?.rol] || [];
+  const [open, setOpen] = useState(false);
+  const isMobile = window.innerWidth <= 768;
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) setOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
+    <>
+      {/* Botón hamburguesa — solo mobile */}
+      <button onClick={() => setOpen(v => !v)} style={{
+        display: 'none', position: 'fixed', top: 12, left: 12, zIndex: 200,
+        background: '#0F172A', border: 'none', borderRadius: 8, padding: '8px 10px',
+        cursor: 'pointer', color: '#fff',
+        ['@media (max-width: 768px)']: { display: 'flex' },
+      }} className="sidebar-toggle">
+        {open ? <XIcon size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Overlay — solo mobile cuando está abierto */}
+      {open && (
+        <div onClick={() => setOpen(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 98,
+        }} />
+      )}
+
     <aside style={{
-      width: 'var(--sidebar-w)', position: 'fixed', left: 0, top: 0, bottom: 0,
-      background: '#0F172A', display: 'flex', flexDirection: 'column', zIndex: 100,
+      width: 260, position: 'fixed', left: 0, top: 0, bottom: 0,
+      background: '#0F172A', display: 'flex', flexDirection: 'column', zIndex: 99,
       borderRight: '1px solid rgba(255,255,255,.05)',
+      transform: isMobile && !open ? 'translateX(-100%)' : 'translateX(0)',
+      transition: 'transform .25s ease',
     }}>
       <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -72,7 +104,8 @@ export default function Sidebar() {
         </div>
         {links.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === links[0].to}
-            style={({ isActive }) => ({
+            onClick={() => setOpen(false)}
+    style={({ isActive }) => ({
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '10px 12px', borderRadius: 8, marginBottom: 2,
               textDecoration: 'none', fontSize: 14, fontWeight: 500,
@@ -108,5 +141,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
