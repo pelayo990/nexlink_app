@@ -157,7 +157,9 @@ export default function EmpresaColaboradores() {
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary"><Download size={15} /> Exportar</button>
+            <button className="btn btn-secondary" onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}/api/colaboradores/exportar`, '_blank')}>
+            <Download size={15} /> Exportar Excel
+          </button>
             <button className="btn btn-primary" onClick={() => setModal('new')}><UserPlus size={15} /> Agregar Colaborador</button>
           </div>
         </div>
