@@ -8,6 +8,7 @@ import Registro from './pages/Registro';
 import VerificarEmail from './pages/VerificarEmail';
 import Perfil from './pages/Perfil';
 import CambiarPassword from './pages/CambiarPassword';
+import NotFound from './pages/NotFound';
 
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminEmpresas from './pages/admin/Empresas';
@@ -88,7 +89,7 @@ export default function App() {
             {/* Perfil — todos los roles */}
             <Route path="/perfil" element={<ProtectedRoute roles={['admin','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
