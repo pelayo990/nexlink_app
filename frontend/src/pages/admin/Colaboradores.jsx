@@ -192,7 +192,11 @@ export default function AdminColaboradores() {
       />}
 
       <div className="page-body">
-        <div className="page-header" style={{ flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+            Filtrar colaboradores
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
@@ -211,9 +215,10 @@ export default function AdminColaboradores() {
             <option value="todas">Todas las áreas</option>
             {areas.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
-          <button className="btn btn-primary" onClick={() => setModal('new')}>
-            <UserPlus size={15} /> Agregar Colaborador
-          </button>
+            <button className="btn btn-primary" onClick={() => setModal('new')} style={{ marginLeft: 'auto' }}>
+              <UserPlus size={15} /> Agregar Colaborador
+            </button>
+          </div>
         </div>
 
         <div className="grid-4" style={{ marginBottom: 24 }}>
