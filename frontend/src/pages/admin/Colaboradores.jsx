@@ -141,6 +141,9 @@ export default function AdminColaboradores() {
   const [colaboradores, setColaboradores] = useState([]);
   const [empresas, setEmpresas] = useState([]);
   const [search, setSearch] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [filtroEmpresa, setFiltroEmpresa] = useState('todas');
+  const [filtroArea, setFiltroArea] = useState('todas');
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [eliminando, setEliminando] = useState(null);
@@ -167,11 +170,17 @@ export default function AdminColaboradores() {
     }
   };
 
-  const filtered = colaboradores.filter(c =>
-    c.nombre.toLowerCase().includes(search.toLowerCase()) ||
-    c.email.toLowerCase().includes(search.toLowerCase()) ||
-    c.cargo?.toLowerCase().includes(search.toLowerCase())
-  );
+  const areas = [...new Set(colaboradores.map(c => c.area).filter(Boolean))];
+
+  const filtered = colaboradores.filter(c => {
+    const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase()) ||
+      c.cargo?.toLowerCase().includes(search.toLowerCase());
+    const matchEstado = filtroEstado === 'todos' || c.estado === filtroEstado;
+    const matchEmpresa = filtroEmpresa === 'todas' || c.empresaId === filtroEmpresa;
+    const matchArea = filtroArea === 'todas' || c.area === filtroArea;
+    return matchSearch && matchEstado && matchEmpresa && matchArea;
+  });
 
   return (
     <>
@@ -187,9 +196,22 @@ export default function AdminColaboradores() {
         <div className="page-header">
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
+            <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroEmpresa} onChange={e => setFiltroEmpresa(e.target.value)}>
+            <option value="todas">Todas las empresas</option>
+            {empresas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+          </select>
+          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroArea} onChange={e => setFiltroArea(e.target.value)}>
+            <option value="todas">Todas las áreas</option>
+            {areas.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
           <button className="btn btn-primary" onClick={() => setModal('new')}>
             <UserPlus size={15} /> Agregar Colaborador
           </button>

@@ -115,6 +115,9 @@ export default function EmpresaColaboradores() {
   const { user } = useAuth();
   const [colaboradores, setColaboradores] = useState([]);
   const [search, setSearch] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [filtroEmpresa, setFiltroEmpresa] = useState('todas');
+  const [filtroArea, setFiltroArea] = useState('todas');
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // null | 'new' | colaborador
   const [eliminando, setEliminando] = useState(null);
@@ -154,9 +157,18 @@ export default function EmpresaColaboradores() {
         <div className="page-header">
           <div style={{ position: 'relative' }}>
             <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 260, height: 38 }}
+            <input className="input" placeholder="Buscar colaborador..." style={{ paddingLeft: 32, width: 200, height: 38 }}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+          <select className="input" style={{ height: 38, fontSize: 13 }} value={filtroArea} onChange={e => setFiltroArea(e.target.value)}>
+            <option value="todas">Todas las áreas</option>
+            {areas.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-secondary" onClick={() => window.open(`${import.meta.env.VITE_API_URL || ''}/api/colaboradores/exportar`, '_blank')}>
             <Download size={15} /> Exportar Excel
