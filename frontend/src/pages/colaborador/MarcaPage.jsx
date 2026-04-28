@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Topbar from '../../components/Topbar';
-import { ArrowLeft, ShoppingCart, CheckCircle, Package, Calendar, Star } from 'lucide-react';
+import { CheckCircle, Package, Calendar, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -35,7 +35,6 @@ function ProductoCard({ producto, onComprar, estaEnCarrito, yaComprado }) {
         </button>
       </div>
     </div>
-    </>
   );
 }
 
@@ -65,6 +64,8 @@ export default function MarcaPage() {
   const agregarCarrito = (p) => {
     if (estaEnCarrito(p.id) || yaComprado(p.id)) return;
     setCarrito(c => [...c, p]);
+    setCompraOk(true);
+    setTimeout(() => setCompraOk(false), 2000);
   };
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#999' }}>Cargando…</div>;
@@ -77,135 +78,123 @@ export default function MarcaPage() {
   return (
     <>
       <Topbar title={empresa.nombre} subtitle={pagina.tagline || empresa.industria} />
-    <div style={{ background: '#ebebeb' }}>
+
       {compraOk && (
-        <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 999, background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 999, background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <CheckCircle size={20} color="#065F46" />
-          <span style={{ fontWeight: 600, color: '#065F46' }}>¡Producto agregado al carrito!</span>
+          <span style={{ fontWeight: 600, color: '#065F46' }}>Producto agregado al carrito</span>
         </div>
       )}
 
-
-
-      {/* Banner de empresa */}
-      <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
-        {pagina.banner?.startsWith('http') ? (
-          <img src={pagina.banner} alt={empresa.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})` }} />
-        )}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,.3) 0%, transparent 40%, rgba(0,0,0,.5) 100%)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 160, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
-
-        {/* Info empresa sobre banner */}
-        <div style={{ position: 'absolute', bottom: 60, left: 48, display: 'flex', alignItems: 'flex-end', gap: 20 }}>
-          {pagina.logo?.startsWith('http') ? (
-            <img src={pagina.logo} alt={empresa.nombre} style={{ width: 80, height: 80, borderRadius: 16, border: '3px solid #fff', objectFit: 'cover', boxShadow: '0 4px 16px rgba(0,0,0,.3)' }} />
+      <div style={{ background: '#ebebeb' }}>
+        {/* Banner de empresa */}
+        <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
+          {pagina.banner?.startsWith('http') ? (
+            <img src={pagina.banner} alt={empresa.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <div style={{ width: 80, height: 80, borderRadius: 16, border: '3px solid #fff', background: colorPrimario, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,.3)' }}>
-              {empresa.nombre.charAt(0)}
+            <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colorPrimario}, ${colorSecundario})` }} />
+          )}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,.3) 0%, transparent 40%, rgba(0,0,0,.5) 100%)' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 160, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
+          <div style={{ position: 'absolute', bottom: 60, left: 48, display: 'flex', alignItems: 'flex-end', gap: 20 }}>
+            {pagina.logo?.startsWith('http') ? (
+              <img src={pagina.logo} alt={empresa.nombre} style={{ width: 80, height: 80, borderRadius: 16, border: '3px solid #fff', objectFit: 'cover', boxShadow: '0 4px 16px rgba(0,0,0,.3)' }} />
+            ) : (
+              <div style={{ width: 80, height: 80, borderRadius: 16, background: colorPrimario, border: '3px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,.3)' }}>
+                {empresa.nombre.charAt(0)}
+              </div>
+            )}
+            <div>
+              <h1 style={{ fontSize: 32, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.4)', marginBottom: 4 }}>{empresa.nombre}</h1>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,.85)', display: 'flex', gap: 16 }}>
+                <span>🏭 {empresa.industria}</span>
+                <span>📦 {productos.length} productos</span>
+                <span>⚡ {eventos.length} eventos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>
+          {pagina.tagline && (
+            <div style={{ background: '#fff', borderRadius: 8, padding: '16px 24px', marginBottom: 16, textAlign: 'center' }}>
+              <p style={{ fontSize: 18, fontWeight: 600, color: '#333', fontStyle: 'italic' }}>"{pagina.tagline}"</p>
             </div>
           )}
-          <div>
-            <h1 style={{ fontSize: 32, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.4)', marginBottom: 4 }}>{empresa.nombre}</h1>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,.85)', display: 'flex', gap: 16 }}>
-              <span>🏭 {empresa.industria}</span>
-              <span>📦 {productos.length} productos</span>
-              <span>⚡ {eventos.length} eventos</span>
+          {pagina.descripcion && (
+            <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sobre {empresa.nombre}</h2>
+              <p style={{ fontSize: 14, color: '#666', lineHeight: 1.7 }}>{pagina.descripcion}</p>
             </div>
+          )}
+
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: '#fff', borderRadius: 8, overflow: 'hidden', border: '1px solid #e5e5e5' }}>
+            {[
+              { id: 'productos', label: `Productos (${productos.length})`, icon: Package },
+              { id: 'eventos', label: `Eventos (${eventos.length})`, icon: Calendar },
+            ].map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                style={{ flex: 1, padding: '14px', border: 'none', background: tab === t.id ? colorPrimario : '#fff', color: tab === t.id ? '#fff' : '#333', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all .15s' }}>
+                <t.icon size={16} /> {t.label}
+              </button>
+            ))}
           </div>
-        </div>
-      </div>
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>
-
-        {/* Tagline */}
-        {pagina.tagline && (
-          <div style={{ background: '#fff', borderRadius: 8, padding: '16px 24px', marginBottom: 16, textAlign: 'center' }}>
-            <p style={{ fontSize: 18, fontWeight: 600, color: '#333', fontStyle: 'italic' }}>"{pagina.tagline}"</p>
-          </div>
-        )}
-
-        {/* Descripción */}
-        {pagina.descripcion && (
-          <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sobre {empresa.nombre}</h2>
-            <p style={{ fontSize: 14, color: '#666', lineHeight: 1.7 }}>{pagina.descripcion}</p>
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: '#fff', borderRadius: 8, overflow: 'hidden', border: '1px solid #e5e5e5' }}>
-          {[
-            { id: 'productos', label: `Productos (${productos.length})`, icon: Package },
-            { id: 'eventos', label: `Eventos (${eventos.length})`, icon: Calendar },
-          ].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              style={{ flex: 1, padding: '14px', border: 'none', background: tab === t.id ? colorPrimario : '#fff', color: tab === t.id ? '#fff' : '#333', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all .15s' }}>
-              <t.icon size={16} /> {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Productos */}
-        {tab === 'productos' && (
-          <div>
-            {/* Destacados */}
-            {productos.slice(0, 4).length > 0 && (
-              <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Star size={18} color="#F59E0B" fill="#F59E0B" /> Más populares
-                </h2>
+          {tab === 'productos' && (
+            <div>
+              {productos.slice(0, 4).length > 0 && (
+                <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Star size={18} color="#F59E0B" fill="#F59E0B" /> Más populares
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+                    {productos.slice(0, 4).map(p => (
+                      <ProductoCard key={p.id} producto={p} onComprar={agregarCarrito} estaEnCarrito={estaEnCarrito(p.id)} yaComprado={yaComprado(p.id)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px' }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Todos los productos</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-                  {productos.slice(0, 4).map(p => (
+                  {productos.map(p => (
                     <ProductoCard key={p.id} producto={p} onComprar={agregarCarrito} estaEnCarrito={estaEnCarrito(p.id)} yaComprado={yaComprado(p.id)} />
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* Todos los productos */}
-            <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px' }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Todos los productos</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-                {productos.map(p => (
-                  <ProductoCard key={p.id} producto={p} onComprar={agregarCarrito} estaEnCarrito={estaEnCarrito(p.id)} yaComprado={yaComprado(p.id)} />
-                ))}
-              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Eventos */}
-        {tab === 'eventos' && (
-          <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px' }}>
-            {eventos.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
-                <Calendar size={48} style={{ marginBottom: 12 }} />
-                <p>No hay eventos activos o próximos</p>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                {eventos.map(ev => (
-                  <div key={ev.id} style={{ padding: 20, borderRadius: 10, border: '1px solid #e5e5e5', background: 'linear-gradient(135deg,#ecf2ff,#f0f7ff)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ background: ev.estado === 'activo' ? '#D1FAE5' : '#FEF3C7', color: ev.estado === 'activo' ? '#065F46' : '#92400E', padding: '3px 10px', borderRadius: 99, fontSize: 12, fontWeight: 700 }}>
-                        {ev.estado === 'activo' ? '⚡ Activo' : '📅 Próximo'}
-                      </span>
+          {tab === 'eventos' && (
+            <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px' }}>
+              {eventos.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 60, color: '#999' }}>
+                  <Calendar size={48} style={{ marginBottom: 12 }} />
+                  <p>No hay eventos activos o próximos</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                  {eventos.map(ev => (
+                    <div key={ev.id} style={{ padding: 20, borderRadius: 10, border: '1px solid #e5e5e5', background: 'linear-gradient(135deg,#ecf2ff,#f0f7ff)' }}>
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ background: ev.estado === 'activo' ? '#D1FAE5' : '#FEF3C7', color: ev.estado === 'activo' ? '#065F46' : '#92400E', padding: '3px 10px', borderRadius: 99, fontSize: 12, fontWeight: 700 }}>
+                          {ev.estado === 'activo' ? '⚡ Activo' : '📅 Próximo'}
+                        </span>
+                      </div>
+                      <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>{ev.nombre}</h3>
+                      <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>{ev.descripcion?.slice(0, 80)}…</p>
+                      <div style={{ fontSize: 12, color: '#999' }}>
+                        {new Date(ev.fechaInicio).toLocaleDateString('es-CL')} — {new Date(ev.fechaFin).toLocaleDateString('es-CL')}
+                      </div>
                     </div>
-                    <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>{ev.nombre}</h3>
-                    <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>{ev.descripcion?.slice(0, 80)}…</p>
-                    <div style={{ fontSize: 12, color: '#999' }}>
-                      {new Date(ev.fechaInicio).toLocaleDateString('es-CL')} — {new Date(ev.fechaFin).toLocaleDateString('es-CL')}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }
