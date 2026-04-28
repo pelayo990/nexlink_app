@@ -19,7 +19,7 @@ export default function MiPagina() {
     if (!user?.empresaId) return;
     api.get(`/pagina-empresa/${user.empresaId}`).then(r => {
       setPagina(r.data.pagina);
-      setForm(r.data.pagina);
+      setForm({ ...r.data.pagina, nombreEmpresa: r.data.empresa?.nombre });
     }).finally(() => setLoading(false));
   }, [user]);
 
