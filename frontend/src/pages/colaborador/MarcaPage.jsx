@@ -77,7 +77,7 @@ export default function MarcaPage() {
   return (
     <>
       <Topbar title={empresa.nombre} subtitle={pagina.tagline || empresa.industria} />
-    <div style={{ background: '#ebebeb', minHeight: '100vh' }}>
+    <div style={{ background: '#ebebeb' }}>
       {compraOk && (
         <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 999, background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <CheckCircle size={20} color="#065F46" />
