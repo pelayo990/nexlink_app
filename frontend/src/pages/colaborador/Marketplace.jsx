@@ -382,8 +382,8 @@ export default function Marketplace() {
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>
 
-          {/* Categorías sobre el difuminado del banner */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: -70, marginBottom: 16, position: 'relative', zIndex: 10, padding: '0 24px' }}>
+          {/* Categorías */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: banners.length > 0 ? -70 : 16, marginBottom: 16, position: 'relative', zIndex: 10, padding: '0 24px' }}>
             <button onClick={() => setCatSel(null)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 24px', borderRadius: 12, border: `2px solid ${!catSel ? '#3483fa' : 'transparent'}`, background: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 90, transition: 'all .15s' }}>
               <span style={{ fontSize: 32 }}>🏪</span>
               <span style={{ fontSize: 13, fontWeight: 700, color: !catSel ? '#3483fa' : '#333', whiteSpace: 'nowrap' }}>Todo</span>
