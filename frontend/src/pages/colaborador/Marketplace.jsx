@@ -375,9 +375,14 @@ export default function Marketplace() {
               })()}
             </div>
           ) : (
-            <div style={{ background: 'linear-gradient(135deg,#3483fa,#1a1a8e)', borderRadius: 8, padding: '48px', textAlign: 'center', color: '#fff' }}>
-              <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 8 }}>Bienvenido al Marketplace NexLink</h1>
-              <p style={{ opacity: .8 }}>Próximamente habrá eventos flash disponibles para ti</p>
+            <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', height: 440 }}>
+              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a8e 0%, #3483fa 50%, #00a650 100%)' }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🛍️</div>
+                <h1 style={{ fontSize: 36, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.3)', marginBottom: 8 }}>Bienvenido al Marketplace NexLink</h1>
+                <p style={{ fontSize: 16, color: 'rgba(255,255,255,.85)' }}>Descuentos exclusivos para colaboradores</p>
+              </div>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
             </div>
           )}
         </div>
