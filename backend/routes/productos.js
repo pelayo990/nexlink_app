@@ -8,21 +8,22 @@ const prisma = new PrismaClient();
 router.get('/', authMiddleware, async (req, res) => {
   const { rol, empresaId } = req.user;
   const { eventoId, categoria } = req.query;
-
   const where = {};
-  if (rol === 'empresa') where.empresaId = empresaId;
 
-  // Colaborador solo ve productos de eventos a los que su empresa está invitada
+  if (rol === 'empresa') {
+    where.empresaId = empresaId;
+  }
+
   if (rol === 'colaborador') {
     const eventosInvitados = await prisma.eventoEmpresa.findMany({
       where: { empresaId },
       select: { eventoId: true },
     });
     const eventosIds = eventosInvitados.map(e => e.eventoId);
-    if (eventosIds.length === 0) {
-      return res.json([]);
+    if (eventosIds.length === 0) return res.json([]);
+    if (!eventoId) {
+      where.eventoId = { in: eventosIds };
     }
-    where.eventoId = { in: eventosIds };
   }
 
   if (eventoId) where.eventoId = eventoId;
