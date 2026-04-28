@@ -308,10 +308,10 @@ export default function Marketplace() {
                 const idx = bannerIdx % eventos.length;
                 return (
                   <>
-                    <img src={BANNER_IMGS[idx % BANNER_IMGS.length]} alt="" style={{ width: '100%', height: 320, objectFit: 'cover', display: 'block' }} />
+                    <img src={BANNER_IMGS[idx % BANNER_IMGS.length]} alt="" style={{ width: '100%', height: 440, objectFit: 'cover', display: 'block' }} />
                     <div style={{ position: 'absolute', inset: 0, background: GRADIENTS[idx % GRADIENTS.length] }} />
-                    {/* Difuminado inferior */}
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
+                    {/* Difuminado inferior más largo */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
                     <div style={{ position: 'absolute', inset: 0, padding: '32px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,.2)', backdropFilter: 'blur(8px)', borderRadius: 20, padding: '4px 14px', marginBottom: 12, width: 'fit-content' }}>
                         <span style={{ fontSize: 14 }}>⚡</span>
@@ -374,16 +374,16 @@ export default function Marketplace() {
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>
 
-          {/* Categorías */}
-          <div style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16, display: 'flex', gap: 8, overflowX: 'auto' }}>
-            <button onClick={() => setCatSel(null)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, border: `2px solid ${!catSel ? '#3483fa' : '#e5e5e5'}`, background: !catSel ? '#ecf2ff' : '#fff', cursor: 'pointer' }}>
-              <span style={{ fontSize: 24 }}>🏪</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: !catSel ? '#3483fa' : '#333', whiteSpace: 'nowrap' }}>Todo</span>
+          {/* Categorías sobre el difuminado del banner */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: -70, marginBottom: 16, position: 'relative', zIndex: 10, padding: '0 24px' }}>
+            <button onClick={() => setCatSel(null)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 24px', borderRadius: 12, border: `2px solid ${!catSel ? '#3483fa' : 'transparent'}`, background: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 90, transition: 'all .15s' }}>
+              <span style={{ fontSize: 32 }}>🏪</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: !catSel ? '#3483fa' : '#333', whiteSpace: 'nowrap' }}>Todo</span>
             </button>
             {CATEGORIAS.map(cat => (
-              <button key={cat} onClick={() => setCatSel(catSel === cat ? null : cat)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, border: `2px solid ${catSel === cat ? '#3483fa' : '#e5e5e5'}`, background: catSel === cat ? '#ecf2ff' : '#fff', cursor: 'pointer' }}>
-                <span style={{ fontSize: 24 }}>{CAT_ICONS[cat]}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: catSel === cat ? '#3483fa' : '#333', whiteSpace: 'nowrap' }}>{cat}</span>
+              <button key={cat} onClick={() => setCatSel(catSel === cat ? null : cat)} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 24px', borderRadius: 12, border: `2px solid ${catSel === cat ? '#3483fa' : 'transparent'}`, background: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.12)', minWidth: 90, transition: 'all .15s' }}>
+                <span style={{ fontSize: 32 }}>{CAT_ICONS[cat]}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: catSel === cat ? '#3483fa' : '#333', whiteSpace: 'nowrap' }}>{cat}</span>
               </button>
             ))}
           </div>
