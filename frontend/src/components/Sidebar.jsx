@@ -1,11 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Menu, X as XIcon } from 'lucide-react';
+import { Menu, X as XIcon, LayoutDashboard, Building2, Calendar, Users, BarChart3, Package, ShoppingBag, LogOut, ChevronRight, ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import {
-  LayoutDashboard, Package, Calendar, Users, Building2,
-  BarChart3, LogOut, ChevronRight
-} from 'lucide-react';
 
 const NAV = {
   admin: [
