@@ -22,7 +22,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/empresas
 router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
   try {
-    const { usuarioNombre, usuarioEmail, usuarioPassword, ...empresaData } = req.body;
+    const { usuarioNombre, usuarioEmail, usuarioPassword, editUsuarioEmail, editUsuarioPassword, ...empresaData } = req.body;
 
     if (usuarioEmail) {
       const existe = await prisma.user.findUnique({ where: { email: usuarioEmail } });
