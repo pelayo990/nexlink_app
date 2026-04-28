@@ -310,6 +310,8 @@ export default function Marketplace() {
                   <>
                     <img src={BANNER_IMGS[idx % BANNER_IMGS.length]} alt="" style={{ width: '100%', height: 320, objectFit: 'cover', display: 'block' }} />
                     <div style={{ position: 'absolute', inset: 0, background: GRADIENTS[idx % GRADIENTS.length] }} />
+                    {/* Difuminado inferior */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
                     <div style={{ position: 'absolute', inset: 0, padding: '32px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,.2)', backdropFilter: 'blur(8px)', borderRadius: 20, padding: '4px 14px', marginBottom: 12, width: 'fit-content' }}>
                         <span style={{ fontSize: 14 }}>⚡</span>
