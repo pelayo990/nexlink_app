@@ -285,40 +285,90 @@ export default function Marketplace() {
 
       <div style={{ background: '#ebebeb', minHeight: '100vh' }}>
 
-        {/* Banner principal + stats */}
-        {eventos.length > 0 && (
-          <div style={{ position: 'relative', overflow: 'hidden', marginBottom: 16 }}>
-            <div style={{ background: `linear-gradient(135deg, ${BANNER_COLORS[bannerIdx % BANNER_COLORS.length]}, ${BANNER_COLORS[(bannerIdx + 1) % BANNER_COLORS.length]})`, padding: '40px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 220, transition: 'background .5s' }}>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8, color: 'rgba(0,0,0,.6)' }}>⚡ Evento Flash Activo</div>
-                <h1 style={{ fontSize: 32, fontWeight: 900, color: '#1a1a2e', marginBottom: 8 }}>{eventos[bannerIdx % eventos.length]?.nombre}</h1>
-                <p style={{ fontSize: 15, color: 'rgba(0,0,0,.7)', marginBottom: 20 }}>{eventos[bannerIdx % eventos.length]?.descripcion?.slice(0, 80)}…</p>
-                <CountdownTimer fechaFin={eventos[bannerIdx % eventos.length]?.fechaFin} />
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 80, lineHeight: 1 }}>🛍️</div>
-                {dashData && (
-                  <div style={{ display: 'flex', gap: 12, marginTop: 16, justifyContent: 'flex-end' }}>
-                    <div style={{ background: 'rgba(255,255,255,.6)', borderRadius: 10, padding: '10px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 20, fontWeight: 800 }}>⭐ {dashData.stats.puntos}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(0,0,0,.6)' }}>Mis puntos</div>
+        {/* Banner principal estilo ML */}
+        <div style={{ marginBottom: 16 }}>
+          {eventos.length > 0 ? (
+            <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', cursor: 'pointer' }}>
+              {/* Imagen de fondo según empresa */}
+              {(() => {
+                const ev = eventos[bannerIdx % eventos.length];
+                const BANNER_IMGS = [
+                  'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1607082349566-187342175400?w=1400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1400&h=400&fit=crop',
+                ];
+                const GRADIENTS = [
+                  'linear-gradient(90deg, rgba(52,131,250,0.92) 0%, rgba(52,131,250,0.4) 60%, transparent 100%)',
+                  'linear-gradient(90deg, rgba(255,230,0,0.95) 0%, rgba(255,230,0,0.5) 60%, transparent 100%)',
+                  'linear-gradient(90deg, rgba(0,166,80,0.92) 0%, rgba(0,166,80,0.4) 60%, transparent 100%)',
+                  'linear-gradient(90deg, rgba(26,26,46,0.92) 0%, rgba(26,26,46,0.4) 60%, transparent 100%)',
+                ];
+                const idx = bannerIdx % eventos.length;
+                return (
+                  <>
+                    <img src={BANNER_IMGS[idx % BANNER_IMGS.length]} alt="" style={{ width: '100%', height: 320, objectFit: 'cover', display: 'block' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: GRADIENTS[idx % GRADIENTS.length] }} />
+                    <div style={{ position: 'absolute', inset: 0, padding: '32px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,.2)', backdropFilter: 'blur(8px)', borderRadius: 20, padding: '4px 14px', marginBottom: 12, width: 'fit-content' }}>
+                        <span style={{ fontSize: 14 }}>⚡</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: idx === 1 ? '#333' : '#fff', textTransform: 'uppercase', letterSpacing: '.08em' }}>Evento Flash Activo</span>
+                      </div>
+                      <h1 style={{ fontSize: 36, fontWeight: 900, color: idx === 1 ? '#1a1a2e' : '#fff', marginBottom: 8, textShadow: idx === 1 ? 'none' : '0 2px 8px rgba(0,0,0,.3)', maxWidth: 500 }}>
+                        {ev?.nombre}
+                      </h1>
+                      <p style={{ fontSize: 15, color: idx === 1 ? '#333' : 'rgba(255,255,255,.9)', marginBottom: 20, maxWidth: 420 }}>
+                        {ev?.descripcion?.slice(0, 90)}…
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: idx === 1 ? '#666' : 'rgba(255,255,255,.7)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>Termina en</div>
+                          <CountdownTimer fechaFin={ev?.fechaFin} />
+                        </div>
+                        <button onClick={() => setCatSel(null)}
+                          style={{ marginLeft: 8, padding: '10px 24px', borderRadius: 6, border: 'none', background: idx === 1 ? '#3483fa' : '#fff', color: idx === 1 ? '#fff' : '#3483fa', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                          Ver ofertas →
+                        </button>
+                      </div>
+                      {dashData && (
+                        <div style={{ position: 'absolute', top: 24, right: 32, display: 'flex', gap: 10 }}>
+                          {[
+                            { icon: '⭐', val: dashData.stats.puntos, label: 'Puntos' },
+                            { icon: '🛍️', val: dashData.stats.comprasTotales, label: 'Compras' },
+                            { icon: '💰', val: `$${Math.round(dashData.stats.montoAhorrado / 1000)}K`, label: 'Ahorrado' },
+                          ].map(s => (
+                            <div key={s.label} style={{ background: 'rgba(255,255,255,.85)', backdropFilter: 'blur(8px)', borderRadius: 10, padding: '8px 14px', textAlign: 'center', minWidth: 80 }}>
+                              <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a2e' }}>{s.icon} {s.val}</div>
+                              <div style={{ fontSize: 11, color: '#666' }}>{s.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,.6)', borderRadius: 10, padding: '10px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 20, fontWeight: 800 }}>🛍 {dashData.stats.comprasTotales}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(0,0,0,.6)' }}>Compras</div>
+                    {/* Dots */}
+                    <div style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+                      {eventos.slice(0, 4).map((_, i) => (
+                        <div key={i} onClick={() => setBannerIdx(i)}
+                          style={{ width: i === bannerIdx % eventos.length ? 24 : 8, height: 8, borderRadius: 4, background: i === bannerIdx % eventos.length ? '#fff' : 'rgba(255,255,255,.4)', cursor: 'pointer', transition: 'all .3s', boxShadow: '0 1px 4px rgba(0,0,0,.3)' }} />
+                      ))}
                     </div>
-                  </div>
-                )}
-              </div>
+                    {/* Flechas */}
+                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i - 1 + eventos.length) % eventos.length); }}
+                      style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>‹</button>
+                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i + 1) % eventos.length); }}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>›</button>
+                  </>
+                );
+              })()}
             </div>
-            {/* Dots */}
-            <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
-              {eventos.slice(0, 3).map((_, i) => (
-                <div key={i} onClick={() => setBannerIdx(i)} style={{ width: i === bannerIdx ? 20 : 8, height: 8, borderRadius: 4, background: 'rgba(0,0,0,.4)', cursor: 'pointer', transition: 'all .3s' }} />
-              ))}
+          ) : (
+            <div style={{ background: 'linear-gradient(135deg,#3483fa,#1a1a8e)', borderRadius: 8, padding: '48px', textAlign: 'center', color: '#fff' }}>
+              <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 8 }}>Bienvenido al Marketplace NexLink</h1>
+              <p style={{ opacity: .8 }}>Próximamente habrá eventos flash disponibles para ti</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 32px' }}>
 
