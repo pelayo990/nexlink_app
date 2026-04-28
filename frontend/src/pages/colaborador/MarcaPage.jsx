@@ -35,6 +35,7 @@ function ProductoCard({ producto, onComprar, estaEnCarrito, yaComprado }) {
         </button>
       </div>
     </div>
+    </>
   );
 }
 
@@ -205,5 +206,6 @@ export default function MarcaPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
