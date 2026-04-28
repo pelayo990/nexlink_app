@@ -68,11 +68,11 @@ export default function MiPagina() {
                 <img src={form.logo} alt="logo" style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #fff', objectFit: 'cover' }} />
               ) : (
                 <div style={{ width: 56, height: 56, borderRadius: 12, background: colorPrimario, border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 22, fontWeight: 900 }}>
-                  {user?.nombre?.charAt(0)}
+                  {(form?.nombreEmpresa || user?.nombre)?.charAt(0)}
                 </div>
               )}
               <div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.4)' }}>{user?.nombre}</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.4)' }}>{form?.nombreEmpresa || user?.nombre}</div>
                 {form?.tagline && <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)' }}>{form.tagline}</div>}
               </div>
             </div>
