@@ -324,10 +324,10 @@ export default function Marketplace() {
                         <span style={{ fontSize: 12, fontWeight: 700, color: idx === 1 ? '#333' : '#fff', textTransform: 'uppercase', letterSpacing: '.08em' }}>Evento Flash Activo</span>
                       </div>
                       <h1 style={{ fontSize: 36, fontWeight: 900, color: idx === 1 ? '#1a1a2e' : '#fff', marginBottom: 8, textShadow: idx === 1 ? 'none' : '0 2px 8px rgba(0,0,0,.3)', maxWidth: 500 }}>
-                        {ev?.nombre}
+                        {titulo}
                       </h1>
                       <p style={{ fontSize: 15, color: idx === 1 ? '#333' : 'rgba(255,255,255,.9)', marginBottom: 20, maxWidth: 420 }}>
-                        {ev?.descripcion?.slice(0, 90)}…
+                        {subtitulo}
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                         {!esBanner && item?.fechaFin && (
