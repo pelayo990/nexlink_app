@@ -90,7 +90,7 @@ export default function App() {
             {/* Colaborador */}
             <Route path="/marketplace" element={<ProtectedRoute roles={['colaborador']}><AppLayout><Marketplace /></AppLayout></ProtectedRoute>} />
             <Route path="/marketplace/mis-compras" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MisCompras /></AppLayout></ProtectedRoute>} />
-            <Route path="/marketplace/empresa/:empresaId" element={<ProtectedRoute roles={['colaborador']}><MarcaPage /></ProtectedRoute>} />
+            <Route path="/marketplace/empresa/:empresaId" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MarcaPage /></AppLayout></ProtectedRoute>} />
 
             {/* Perfil — todos los roles */}
             <Route path="/perfil" element={<ProtectedRoute roles={['admin','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />
