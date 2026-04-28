@@ -171,3 +171,17 @@ enum Plan {
   premium
   enterprise
 }
+
+model Banner {
+  id          String   @id @default(cuid())
+  titulo      String
+  subtitulo   String?
+  imagen      String
+  colorFondo  String   @default("#3483fa")
+  colorTexto  String   @default("#ffffff")
+  ctaTexto    String?
+  ctaLink     String?
+  orden       Int      @default(0)
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}

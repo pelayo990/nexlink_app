@@ -44,3 +44,6 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 NexLink Backend v2.0 corriendo en http://localhost:${PORT}`);
 });
+
+const bannersRoutes = require('./routes/banners');
+app.use('/api/banners', bannersRoutes);

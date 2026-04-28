@@ -196,13 +196,16 @@ export default function Marketplace() {
   const [search, setSearch] = useState('');
   const [catSel, setCatSel] = useState(null);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [banners, setBanners] = useState([]);
 
   const cargarDatos = () => {
     Promise.all([
       api.get('/eventos'),
       api.get('/productos'),
       api.get('/compras/mis-compras'),
-    ]).then(([evRes, prRes, comprasRes]) => {
+      api.get('/banners'),
+    ]).then(([evRes, prRes, comprasRes, bannersRes]) => {
+      setBanners(bannersRes.data);
       setEventos(evRes.data.filter(e => e.estado === 'activo'));
       setProductos(prRes.data);
       setMisCompras(comprasRes.data.map(c => c.productoId));
@@ -285,30 +288,33 @@ export default function Marketplace() {
 
       <div style={{ background: '#ebebeb', minHeight: '100vh' }}>
 
-        {/* Banner principal estilo ML */}
+        {/* Banner principal — usa banners de BD o fallback con eventos */}
         <div style={{ marginBottom: 16 }}>
-          {eventos.length > 0 ? (
+          {(banners.length > 0 || eventos.length > 0) ? (
             <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', cursor: 'pointer' }}>
-              {/* Imagen de fondo según empresa */}
               {(() => {
-                const ev = eventos[bannerIdx % eventos.length];
-                const BANNER_IMGS = [
+                const items = banners.length > 0 ? banners : eventos;
+                const idx = bannerIdx % items.length;
+                const item = items[idx];
+                const esBanner = banners.length > 0;
+                const imagen = esBanner ? item.imagen : [
                   'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1400&h=400&fit=crop',
                   'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1400&h=400&fit=crop',
-                  'https://images.unsplash.com/photo-1607082349566-187342175400?w=1400&h=400&fit=crop',
                   'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=400&fit=crop',
-                  'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1400&h=400&fit=crop',
-                ];
+                ][idx % 3];
+                const titulo = esBanner ? item.titulo : item.nombre;
+                const subtitulo = esBanner ? item.subtitulo : item.descripcion?.slice(0, 80) + '…';
+                const colorTexto = esBanner ? item.colorTexto : '#ffffff';
+                const ctaTexto = esBanner ? item.ctaTexto : 'Ver ofertas';
                 const GRADIENTS = [
                   'linear-gradient(90deg, rgba(52,131,250,0.92) 0%, rgba(52,131,250,0.4) 60%, transparent 100%)',
                   'linear-gradient(90deg, rgba(255,230,0,0.95) 0%, rgba(255,230,0,0.5) 60%, transparent 100%)',
                   'linear-gradient(90deg, rgba(0,166,80,0.92) 0%, rgba(0,166,80,0.4) 60%, transparent 100%)',
                   'linear-gradient(90deg, rgba(26,26,46,0.92) 0%, rgba(26,26,46,0.4) 60%, transparent 100%)',
                 ];
-                const idx = bannerIdx % eventos.length;
                 return (
                   <>
-                    <img src={BANNER_IMGS[idx % BANNER_IMGS.length]} alt="" style={{ width: '100%', height: 440, objectFit: 'cover', display: 'block' }} />
+                    <img src={imagen} alt={titulo} style={{ width: '100%', height: 440, objectFit: 'cover', display: 'block' }} />
                     <div style={{ position: 'absolute', inset: 0, background: GRADIENTS[idx % GRADIENTS.length] }} />
                     {/* Difuminado inferior más largo */}
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(to bottom, transparent, #ebebeb)' }} />
@@ -324,14 +330,16 @@ export default function Marketplace() {
                         {ev?.descripcion?.slice(0, 90)}…
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                        {!esBanner && item?.fechaFin && (
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: idx === 1 ? '#666' : 'rgba(255,255,255,.7)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>Termina en</div>
-                          <CountdownTimer fechaFin={ev?.fechaFin} />
+                          <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.7)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>Termina en</div>
+                          <CountdownTimer fechaFin={item.fechaFin} />
                         </div>
-                        <button onClick={() => setCatSel(null)}
-                          style={{ marginLeft: 8, padding: '10px 24px', borderRadius: 6, border: 'none', background: idx === 1 ? '#3483fa' : '#fff', color: idx === 1 ? '#fff' : '#3483fa', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-                          Ver ofertas →
-                        </button>
+                      )}
+                        {ctaTexto && <button onClick={() => setCatSel(null)}
+                          style={{ marginLeft: 8, padding: '10px 24px', borderRadius: 6, border: 'none', background: '#fff', color: '#3483fa', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                          {ctaTexto} →
+                        </button>}
                       </div>
                       {dashData && (
                         <div style={{ position: 'absolute', top: 24, right: 32, display: 'flex', gap: 10 }}>
@@ -350,15 +358,15 @@ export default function Marketplace() {
                     </div>
                     {/* Dots */}
                     <div style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
-                      {eventos.slice(0, 4).map((_, i) => (
+                      {items.slice(0, 4).map((_, i) => (
                         <div key={i} onClick={() => setBannerIdx(i)}
                           style={{ width: i === bannerIdx % eventos.length ? 24 : 8, height: 8, borderRadius: 4, background: i === bannerIdx % eventos.length ? '#fff' : 'rgba(255,255,255,.4)', cursor: 'pointer', transition: 'all .3s', boxShadow: '0 1px 4px rgba(0,0,0,.3)' }} />
                       ))}
                     </div>
                     {/* Flechas */}
-                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i - 1 + eventos.length) % eventos.length); }}
+                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i - 1 + items.length) % items.length); }}
                       style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>‹</button>
-                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i + 1) % eventos.length); }}
+                    <button onClick={e => { e.stopPropagation(); setBannerIdx(i => (i + 1) % items.length); }}
                       style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,.2)' }}>›</button>
                   </>
                 );
