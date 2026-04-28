@@ -14,7 +14,7 @@ const NAV = {
     { to: '/admin/eventos', icon: Calendar, label: 'Eventos' },
     { to: '/admin/colaboradores', icon: Users, label: 'Colaboradores' },
     { to: '/admin/reportes', icon: BarChart3, label: 'Reportes' },
-  { to: '/admin/banners', icon: Image, label: 'Banners' },
+  { to: '/admin/banners', icon: ImageIcon, label: 'Banners' },
   ],
   empresa: [
     { to: '/empresa', icon: LayoutDashboard, label: 'Dashboard' },
