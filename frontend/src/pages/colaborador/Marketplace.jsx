@@ -290,7 +290,7 @@ export default function Marketplace() {
 
         {/* Banner principal — usa banners de BD o fallback con eventos */}
         <div style={{ marginBottom: 16 }}>
-          {(banners.length > 0 || eventos.length > 0) ? (
+          {banners.length > 0 ? (
             <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', cursor: 'pointer' }}>
               {(() => {
                 const items = banners.length > 0 ? banners : eventos;
