@@ -18,6 +18,7 @@ const NAV = {
     { to: '/empresa/eventos', icon: Calendar, label: 'Mis Eventos' },
     { to: '/empresa/colaboradores', icon: Users, label: 'Colaboradores' },
     { to: '/empresa/reportes', icon: BarChart3, label: 'Reportes' },
+  { to: '/empresa/mi-pagina', icon: Package, label: 'Mi Página' },
   ],
   colaborador: [
     { to: '/marketplace', icon: Package, label: 'Marketplace' },

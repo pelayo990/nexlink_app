@@ -23,9 +23,11 @@ import EmpresaEventos from './pages/empresa/Eventos';
 import EventoDetalle from './pages/empresa/EventoDetalle';
 import EmpresaColaboradores from './pages/empresa/Colaboradores';
 import EmpresaReportes from './pages/empresa/Reportes';
+import MiPagina from './pages/empresa/MiPagina';
 
 import Marketplace from './pages/colaborador/Marketplace';
 import MisCompras from './pages/colaborador/MisCompras';
+import MarcaPage from './pages/colaborador/MarcaPage';
 
 const ROL_HOME = {
   admin: '/admin',
@@ -83,10 +85,12 @@ export default function App() {
             <Route path="/empresa/eventos/:id" element={<ProtectedRoute roles={['empresa','admin']}><AppLayout><EventoDetalle /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/colaboradores" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaColaboradores /></AppLayout></ProtectedRoute>} />
             <Route path="/empresa/reportes" element={<ProtectedRoute roles={['empresa']}><AppLayout><EmpresaReportes /></AppLayout></ProtectedRoute>} />
+            <Route path="/empresa/mi-pagina" element={<ProtectedRoute roles={['empresa']}><AppLayout><MiPagina /></AppLayout></ProtectedRoute>} />
 
             {/* Colaborador */}
             <Route path="/marketplace" element={<ProtectedRoute roles={['colaborador']}><AppLayout><Marketplace /></AppLayout></ProtectedRoute>} />
             <Route path="/marketplace/mis-compras" element={<ProtectedRoute roles={['colaborador']}><AppLayout><MisCompras /></AppLayout></ProtectedRoute>} />
+            <Route path="/marketplace/empresa/:empresaId" element={<ProtectedRoute roles={['colaborador']}><MarcaPage /></ProtectedRoute>} />
 
             {/* Perfil — todos los roles */}
             <Route path="/perfil" element={<ProtectedRoute roles={['admin','empresa','colaborador']}><AppLayout><Perfil /></AppLayout></ProtectedRoute>} />

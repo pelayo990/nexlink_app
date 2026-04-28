@@ -57,6 +57,7 @@ model Empresa {
   eventos               EventoEmpresa[]
   eventosDirectos       Evento[]
   productos             Producto[]
+  paginaEmpresa         PaginaEmpresa?
 }
 
 model Colaborador {
@@ -184,4 +185,20 @@ model Banner {
   orden       Int      @default(0)
   activo      Boolean  @default(true)
   createdAt   DateTime @default(now())
+}
+
+model PaginaEmpresa {
+  id             String   @id @default(cuid())
+  empresaId      String   @unique
+  empresa        Empresa  @relation(fields: [empresaId], references: [id])
+  banner         String?
+  logo           String?
+  descripcion    String?
+  colorPrimario  String   @default("#4F46E5")
+  colorSecundario String  @default("#7C3AED")
+  tagline        String?
+  destacados     String[] @default([])
+  activa         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

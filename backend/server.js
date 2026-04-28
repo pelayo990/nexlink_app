@@ -47,3 +47,6 @@ app.listen(PORT, () => {
 
 const bannersRoutes = require('./routes/banners');
 app.use('/api/banners', bannersRoutes);
+
+const paginaEmpresaRoutes = require('./routes/paginaEmpresa');
+app.use('/api/pagina-empresa', paginaEmpresaRoutes);

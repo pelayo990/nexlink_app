@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Search, ShoppingCart, X, CheckCircle, AlertCircle, ChevronRight, Clock, Zap, Star, TrendingUp, Package, Tag } from 'lucide-react';
 import Topbar from '../../components/Topbar';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -183,6 +184,7 @@ function CartDrawer({ items, onClose, onComprar, loading, error }) {
 
 export default function Marketplace() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [eventos, setEventos] = useState([]);
   const [productos, setProductos] = useState([]);
   const [misCompras, setMisCompras] = useState([]);
@@ -463,14 +465,14 @@ export default function Marketplace() {
               </div>
 
               {/* Por empresa */}
-              {['Samsung Chile', 'Falabella', 'Cencosud', 'Latam Airlines', 'Banco de Chile', 'Entel'].map(nombreEmpresa => {
+              {[...new Set(productos.map(p => p.empresa?.nombre).filter(Boolean))].map(nombreEmpresa => {
                 const prods = productos.filter(p => p.empresa?.nombre === nombreEmpresa).slice(0, 6);
                 if (prods.length === 0) return null;
                 return (
                   <div key={nombreEmpresa} style={{ background: '#fff', borderRadius: 8, padding: '20px 24px', marginBottom: 16 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                       <h2 style={{ fontSize: 18, fontWeight: 700 }}>Productos de {nombreEmpresa}</h2>
-                      <span style={{ fontSize: 13, color: '#3483fa', cursor: 'pointer', fontWeight: 600 }}>Ver todos <ChevronRight size={14} style={{ display: 'inline' }} /></span>
+                      <span onClick={() => { const emp = productos.find(p => p.empresa?.nombre === nombreEmpresa)?.empresa; if (emp) navigate('/marketplace/empresa/' + (emp.id || emp.empresaId)); }} style={{ fontSize: 13, color: '#3483fa', cursor: 'pointer', fontWeight: 600 }}>Ver tienda <ChevronRight size={14} style={{ display: 'inline' }} /></span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
                       {prods.map(p => (
