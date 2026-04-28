@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Topbar from '../../components/Topbar';
 import { ArrowLeft, ShoppingCart, CheckCircle, Package, Calendar, Star } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -34,6 +35,7 @@ function ProductoCard({ producto, onComprar, estaEnCarrito, yaComprado }) {
         </button>
       </div>
     </div>
+    </>
   );
 }
 
@@ -73,6 +75,8 @@ export default function MarcaPage() {
   const colorSecundario = pagina.colorSecundario || '#7C3AED';
 
   return (
+    <>
+      <Topbar title={empresa.nombre} subtitle={pagina.tagline || empresa.industria} />
     <div style={{ background: '#ebebeb', minHeight: '100vh' }}>
       {compraOk && (
         <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 999, background: '#D1FAE5', border: '1px solid #6EE7B7', borderRadius: 10, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -81,17 +85,7 @@ export default function MarcaPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e5e5e5', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 16, position: 'sticky', top: 0, zIndex: 50 }}>
-        <button onClick={() => navigate('/marketplace')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#3483fa', fontWeight: 600, fontSize: 14 }}>
-          <ArrowLeft size={16} /> Volver al Marketplace
-        </button>
-        {carrito.length > 0 && (
-          <button onClick={() => navigate('/marketplace')} style={{ marginLeft: 'auto', background: '#3483fa', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <ShoppingCart size={16} /> {carrito.length} en carrito
-          </button>
-        )}
-      </div>
+
 
       {/* Banner de empresa */}
       <div style={{ position: 'relative', height: 320, overflow: 'hidden' }}>
@@ -212,5 +206,6 @@ export default function MarcaPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
