@@ -12,6 +12,15 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET no definido en .env');
 
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: IS_PROD,
+  sameSite: IS_PROD ? 'none' : 'lax',
+  maxAge: 8 * 60 * 60 * 1000, // 8h
+};
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -48,13 +57,20 @@ router.post('/login', loginLimiter, async (req, res) => {
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
-  res.json({ token, user: payload });
+
+  res.cookie('nexlink_token', token, COOKIE_OPTS);
+  res.json({ user: payload });
+});
+
+// POST /api/auth/logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('nexlink_token', COOKIE_OPTS);
+  res.json({ message: 'Sesión cerrada' });
 });
 
 // GET /api/auth/me
 router.get('/me', (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies?.nexlink_token;
   if (!token) return res.status(401).json({ error: 'No autenticado' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -66,8 +82,7 @@ router.get('/me', (req, res) => {
 
 // POST /api/auth/cambiar-password
 router.post('/cambiar-password', async (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies?.nexlink_token;
   if (!token) return res.status(401).json({ error: 'No autenticado' });
 
   let decoded;
@@ -159,7 +174,6 @@ router.get('/verificar', async (req, res) => {
     const empresa = await prisma.empresa.findUnique({ where: { id: user.empresaId } });
     await enviarBienvenida({ nombre: user.nombre, email: user.email, empresa: empresa?.nombre });
 
-    // Notificar al RRHH de la empresa
     if (empresa?.emailRRHH) {
       const colaborador = await prisma.colaborador.findUnique({ where: { id: user.colaboradorId } });
       await enviarNotificacionNuevoColaborador({
@@ -177,11 +191,9 @@ router.get('/verificar', async (req, res) => {
   res.json({ message: '¡Email verificado! Ya puedes iniciar sesión.', verificado: true });
 });
 
-
-// POST /api/auth/cambiar-password-forzado — solo para usuarios con debeCambiarPassword=true
+// POST /api/auth/cambiar-password-forzado
 router.post('/cambiar-password-forzado', async (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies?.nexlink_token;
   if (!token) return res.status(401).json({ error: 'No autenticado' });
 
   let decoded;

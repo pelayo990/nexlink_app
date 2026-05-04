@@ -4,12 +4,7 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL
     ? `${import.meta.env.VITE_API_URL}/api`
     : '/api',
-});
-
-api.interceptors.request.use(cfg => {
-  const token = localStorage.getItem('nexlink_token');
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
+  withCredentials: true, // envia la cookie httpOnly automáticamente
 });
 
 api.interceptors.response.use(
@@ -28,7 +23,6 @@ api.interceptors.response.use(
       ));
 
     if (esTokenInvalido) {
-      localStorage.removeItem('nexlink_token');
       localStorage.removeItem('nexlink_user');
       window.location.href = '/login';
     }

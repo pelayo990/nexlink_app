@@ -5,16 +5,33 @@ const { authMiddleware } = require('../middleware/auth');
 
 const prisma = new PrismaClient();
 
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
 // Admin dashboard
 router.get('/admin', authMiddleware, async (req, res) => {
-  const [empresas, colaboradores, eventos] = await Promise.all([
+  const [empresas, colaboradores, eventos, totalTransacciones, ventasPorMes] = await Promise.all([
     prisma.empresa.findMany(),
     prisma.colaborador.findMany(),
     prisma.evento.findMany({ include: { empresa: true } }),
+    prisma.compra.count({ where: { estado: 'completada' } }),
+    prisma.$queryRaw`
+      SELECT
+        EXTRACT(MONTH FROM fecha)::int AS mes_num,
+        SUM(monto) AS ventas
+      FROM "Compra"
+      WHERE estado = 'completada'
+        AND fecha >= NOW() - INTERVAL '12 months'
+      GROUP BY mes_num
+      ORDER BY mes_num
+    `,
   ]);
 
   const totalVentas = empresas.reduce((s, e) => s + e.comprasTotales, 0);
-  const totalCompras = empresas.reduce((s, e) => s + e.comprasTotales, 0);
+
+  const ventasMensuales = ventasPorMes.map(r => ({
+    mes: MESES[Number(r.mes_num) - 1],
+    ventas: Number(r.ventas),
+  }));
 
   res.json({
     resumen: {
@@ -24,7 +41,7 @@ router.get('/admin', authMiddleware, async (req, res) => {
       totalEventos: eventos.length,
       eventosActivos: eventos.filter(e => e.estado === 'activo').length,
       ventasTotalesPlataforma: totalVentas,
-      transaccionesTotales: totalCompras,
+      transaccionesTotales: totalTransacciones,
     },
     eventosPorEstado: {
       activo: eventos.filter(e => e.estado === 'activo').length,
@@ -36,13 +53,7 @@ router.get('/admin', authMiddleware, async (req, res) => {
       .slice(0, 4)
       .map(e => ({ id: e.id, nombre: e.nombre, industria: e.industria, compras: e.comprasTotales, colaboradores: e.colaboradoresActivos })),
     eventosRecientes: eventos.slice(0, 4),
-    ventasMensuales: [
-      { mes: 'Ene', ventas: 8200000 }, { mes: 'Feb', ventas: 12400000 },
-      { mes: 'Mar', ventas: 18900000 }, { mes: 'Abr', ventas: 22100000 },
-      { mes: 'May', ventas: 19800000 }, { mes: 'Jun', ventas: 28400000 },
-      { mes: 'Jul', ventas: 31200000 }, { mes: 'Ago', ventas: 35800000 },
-      { mes: 'Sep', ventas: 42100000 },
-    ],
+    ventasMensuales,
   });
 });
 
@@ -51,13 +62,27 @@ router.get('/empresa/:id', authMiddleware, async (req, res) => {
   const empresa = await prisma.empresa.findUnique({ where: { id: req.params.id } });
   if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
 
-  const [colaboradoresE, eventosE] = await Promise.all([
+  const [colaboradoresE, eventosE, participacionPorMes] = await Promise.all([
     prisma.colaborador.findMany({ where: { empresaId: empresa.id }, include: { compras: true } }),
-    prisma.evento.findMany({
-      where: { empresaId: empresa.id },
-      include: { empresa: true },
-    }),
+    prisma.evento.findMany({ where: { empresaId: empresa.id }, include: { empresa: true } }),
+    prisma.$queryRaw`
+      SELECT
+        EXTRACT(MONTH FROM c.fecha)::int AS mes_num,
+        COUNT(DISTINCT c."colaboradorId")::int AS participacion
+      FROM "Compra" c
+      JOIN "Colaborador" col ON col.id = c."colaboradorId"
+      WHERE col."empresaId" = ${empresa.id}
+        AND c.estado = 'completada'
+        AND c.fecha >= NOW() - INTERVAL '12 months'
+      GROUP BY mes_num
+      ORDER BY mes_num
+    `,
   ]);
+
+  const participacionMensual = participacionPorMes.map(r => ({
+    mes: MESES[Number(r.mes_num) - 1],
+    participacion: Number(r.participacion),
+  }));
 
   res.json({
     empresa,
@@ -72,13 +97,7 @@ router.get('/empresa/:id', authMiddleware, async (req, res) => {
     eventosProximos: eventosE.filter(e => e.estado === 'proximo').map(e => ({ ...e, marca: e.empresa })),
     colaboradores: colaboradoresE,
     topColaboradores: [...colaboradoresE].sort((a, b) => b.puntos - a.puntos).slice(0, 5),
-    participacionMensual: [
-      { mes: 'Ene', participacion: 12 }, { mes: 'Feb', participacion: 18 },
-      { mes: 'Mar', participacion: 24 }, { mes: 'Abr', participacion: 31 },
-      { mes: 'May', participacion: 28 }, { mes: 'Jun', participacion: 42 },
-      { mes: 'Jul', participacion: 55 }, { mes: 'Ago', participacion: 61 },
-      { mes: 'Sep', participacion: 73 },
-    ],
+    participacionMensual,
   });
 });
 

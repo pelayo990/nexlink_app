@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-// Falla explícitamente si no está definido — nunca usar fallback hardcodeado
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET no está definido. Crea un archivo .env con JWT_SECRET=<secreto>');
@@ -10,14 +9,15 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const authMiddleware = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  // Leer token desde cookie httpOnly primero, fallback a Authorization header
+  const token = req.cookies?.nexlink_token ||
+    (req.headers['authorization']?.split(' ')[1]);
+
   if (!token) return res.status(401).json({ error: 'Token requerido' });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Verificar que el email esté confirmado (excepto admin)
     if (decoded.rol !== 'admin') {
       const user = await prisma.user.findUnique({ where: { id: decoded.id }, select: { emailVerificado: true } });
       if (!user?.emailVerificado) {

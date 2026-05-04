@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('nexlink_token', data.token);
+      // El token va en cookie httpOnly — solo guardamos el user en localStorage
       localStorage.setItem('nexlink_user', JSON.stringify(data.user));
       setUser(data.user);
       return data.user;
@@ -27,8 +27,8 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('nexlink_token');
+  const logout = useCallback(async () => {
+    try { await api.post('/auth/logout'); } catch { /* ignorar error de red */ }
     localStorage.removeItem('nexlink_user');
     setUser(null);
   }, []);
