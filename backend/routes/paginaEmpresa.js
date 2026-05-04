@@ -12,7 +12,6 @@ router.get('/:empresaId', authMiddleware, asyncHandler(async (req, res) => {
 
   let pagina = await prisma.paginaEmpresa.findUnique({ where: { empresaId } });
 
-  // Si no existe, crear una por defecto
   if (!pagina) {
     const empresa = await prisma.empresa.findUnique({ where: { id: empresaId } });
     if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
@@ -37,10 +36,17 @@ router.get('/:empresaId', authMiddleware, asyncHandler(async (req, res) => {
 router.put('/:empresaId', authMiddleware, asyncHandler(async (req, res) => {
   const { empresaId } = req.params;
 
+  // Filtrar solo los campos válidos del schema
+  const { banner, logo, descripcion, colorPrimario, colorSecundario, tagline, destacados, activa } = req.body;
+  const data = { banner, logo, descripcion, colorPrimario, colorSecundario, tagline, destacados, activa };
+
+  // Eliminar campos undefined
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+
   const pagina = await prisma.paginaEmpresa.upsert({
     where: { empresaId },
-    update: req.body,
-    create: { empresaId, ...req.body },
+    update: data,
+    create: { empresaId, ...data },
   });
 
   res.json(pagina);
