@@ -9,12 +9,11 @@ const prisma = new PrismaClient();
 // GET /api/reportes/resumen
 router.get('/resumen', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   const [
-    totalMarcas, totalEmpresas, totalColaboradores, totalEventos,
+    totalEmpresas, totalColaboradores, totalEventos,
     totalProductos, totalCompras, comprasMonto,
-    eventosPorEstado, topMarcas, topEmpresas, topProductos,
+    eventosPorEstado, topEmpresas, topProductos,
     comprasPorMes,
   ] = await Promise.all([
-    prisma.marca.count(),
     prisma.empresa.count(),
     prisma.colaborador.count(),
     prisma.evento.count(),
@@ -22,7 +21,6 @@ router.get('/resumen', authMiddleware, roleMiddleware('admin'), asyncHandler(asy
     prisma.compra.count({ where: { estado: 'completada' } }),
     prisma.compra.aggregate({ where: { estado: 'completada' }, _sum: { monto: true } }),
     prisma.evento.groupBy({ by: ['estado'], _count: true }),
-    prisma.marca.findMany({ orderBy: { ventasTotales: 'desc' }, take: 5 }),
     prisma.empresa.findMany({ orderBy: { comprasTotales: 'desc' }, take: 5 }),
     prisma.compra.groupBy({
       by: ['productoId'],
@@ -51,16 +49,14 @@ router.get('/resumen', authMiddleware, roleMiddleware('admin'), asyncHandler(asy
   const productIds = topProductos.map(p => p.productoId);
   const productosInfo = await prisma.producto.findMany({
     where: { id: { in: productIds } },
-    include: { marca: true },
   });
   const topProductosEnriquecidos = topProductos.map(tp => {
     const info = productosInfo.find(p => p.id === tp.productoId);
-    return { ...tp, nombre: info?.nombre, marca: info?.marca?.nombre, categoria: info?.categoria };
+    return { ...tp, nombre: info?.nombre, categoria: info?.categoria };
   });
 
   res.json({
     kpis: {
-      totalMarcas,
       totalEmpresas,
       totalColaboradores,
       totalEventos,
@@ -69,14 +65,11 @@ router.get('/resumen', authMiddleware, roleMiddleware('admin'), asyncHandler(asy
       montoTotal: comprasMonto._sum.monto || 0,
     },
     eventosPorEstado: Object.fromEntries(eventosPorEstado.map(e => [e.estado, e._count])),
-    topMarcas: topMarcas.map(m => ({ id: m.id, nombre: m.nombre, categoria: m.categoria, ventas: m.ventasTotales, colaboradoresAlcanzados: m.colaboradoresAlcanzados })),
     topEmpresas: topEmpresas.map(e => ({ id: e.id, nombre: e.nombre, industria: e.industria, compras: e.comprasTotales, satisfaccion: e.satisfaccion })),
     topProductos: topProductosEnriquecidos,
     ventasMensuales: Object.entries(ventasMensuales).map(([mes, ventas]) => ({ mes, ventas })),
   });
 }));
-
-module.exports = router;
 
 // GET /api/reportes/empresa/:id
 router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
@@ -94,10 +87,7 @@ router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
     prisma.producto.count({ where: { empresaId } }),
     prisma.evento.count({ where: { empresaId } }),
     prisma.compra.findMany({
-      where: {
-        estado: 'completada',
-        colaborador: { empresaId },
-      },
+      where: { estado: 'completada', colaborador: { empresaId } },
       include: { producto: true },
       orderBy: { fecha: 'asc' },
     }),
@@ -132,7 +122,6 @@ router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
   const productosInfo = await prisma.producto.findMany({
     where: { id: { in: productosIds } },
   });
-
   const topProductosEnriquecidos = topProductos.map(tp => {
     const info = productosInfo.find(p => p.id === tp.productoId);
     return { ...tp, nombre: info?.nombre, categoria: info?.categoria };
@@ -153,3 +142,5 @@ router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
     ventasMensuales: Object.entries(ventasMensuales).map(([mes, monto]) => ({ mes, monto })),
   });
 }));
+
+module.exports = router;
