@@ -31,7 +31,7 @@ export default function MiPagina() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
-      alert('Error al guardar');
+      alert('Error al guardar: ' + (e.response?.data?.error || e.message));
     } finally {
       setSaving(false);
     }
