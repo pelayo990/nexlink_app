@@ -139,7 +139,7 @@ export default function EmpresaProductos() {
   const cargar = () => {
     setLoading(true);
     Promise.all([api.get('/productos'), api.get('/eventos')])
-      .then(([pRes, eRes]) => { setProductos(pRes.data); setEventos(eRes.data); })
+      .then(([pRes, eRes]) => { setProductos(pRes.data.productos); setEventos(eRes.data); })
       .finally(() => setLoading(false));
   };
 

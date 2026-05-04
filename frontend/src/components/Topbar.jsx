@@ -37,7 +37,7 @@ export default function Topbar({ title, subtitle }) {
       ]).then(([evRes, prRes]) => {
         const q = search.toLowerCase();
         const evs = evRes.data.filter(e => e.nombre.toLowerCase().includes(q)).slice(0, 3).map(e => ({ tipo: 'evento', label: e.nombre, sub: e.marca?.nombre, id: e.id }));
-        const prs = prRes.data.filter(p => p.nombre.toLowerCase().includes(q)).slice(0, 3).map(p => ({ tipo: 'producto', label: p.nombre, sub: p.categoria, id: p.id }));
+        const prs = (prRes.data.productos || []).filter(p => p.nombre.toLowerCase().includes(q)).slice(0, 3).map(p => ({ tipo: 'producto', label: p.nombre, sub: p.categoria, id: p.id }));
         setResultados([...evs, ...prs]);
         setShowSearch(true);
       }).catch(() => {});
