@@ -5,21 +5,21 @@ const { authMiddleware } = require('../middleware/auth');
 const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
-
 const PAGE_SIZE = 20;
 
 router.get('/', authMiddleware, asyncHandler(async (req, res) => {
-  const { rol, empresaId } = req.user;
-  const { eventoId, categoria, search, page = 1, limit = PAGE_SIZE, all } = req.query;
+  const { rol, empresaId: userEmpresaId } = req.user;
+  const { eventoId, categoria, search, page = 1, limit = PAGE_SIZE, all,
+          empresaId: filtroEmpresaId, precioMin, precioMax, descuentoMin } = req.query;
   const where = {};
 
   if (rol === 'empresa') {
-    where.empresaId = empresaId;
+    where.empresaId = userEmpresaId;
   }
 
   if (rol === 'colaborador') {
     const eventosInvitados = await prisma.eventoEmpresa.findMany({
-      where: { empresaId },
+      where: { empresaId: userEmpresaId },
       select: { eventoId: true },
     });
     const eventosIds = eventosInvitados.map(e => e.eventoId);
@@ -30,8 +30,14 @@ router.get('/', authMiddleware, asyncHandler(async (req, res) => {
   if (eventoId) where.eventoId = eventoId;
   if (categoria) where.categoria = categoria;
   if (search) where.nombre = { contains: search, mode: 'insensitive' };
+  if (filtroEmpresaId) where.empresaId = filtroEmpresaId;
+  if (precioMin || precioMax) {
+    where.precioEvento = {};
+    if (precioMin) where.precioEvento.gte = parseFloat(precioMin);
+    if (precioMax) where.precioEvento.lte = parseFloat(precioMax);
+  }
+  if (descuentoMin) where.descuento = { gte: parseFloat(descuentoMin) };
 
-  // all=true → sin paginación (para secciones de home: ofertas, destacados)
   if (all === 'true') {
     const productos = await prisma.producto.findMany({
       where,
@@ -56,12 +62,7 @@ router.get('/', authMiddleware, asyncHandler(async (req, res) => {
     prisma.producto.count({ where }),
   ]);
 
-  res.json({
-    productos,
-    total,
-    page: pageNum,
-    totalPages: Math.ceil(total / limitNum),
-  });
+  res.json({ productos, total, page: pageNum, totalPages: Math.ceil(total / limitNum) });
 }));
 
 router.get('/:id', authMiddleware, asyncHandler(async (req, res) => {
