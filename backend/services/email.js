@@ -59,7 +59,6 @@ const enviarBienvenida = async ({ nombre, email, empresa }) => {
   });
 };
 
-module.exports = { enviarVerificacion, enviarBienvenida };
 
 const enviarNotificacionNuevoColaborador = async ({ empresaEmail, empresaNombre, colaboradorNombre, colaboradorEmail, cargo }) => {
   await resend.emails.send({

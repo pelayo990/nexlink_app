@@ -15,11 +15,24 @@ api.interceptors.request.use(cfg => {
 api.interceptors.response.use(
   r => r,
   err => {
-    if (err.response?.status === 401 || err.response?.status === 403) {
+    const status = err.response?.status;
+    const mensaje = err.response?.data?.error || '';
+
+    // 401 siempre es sesión expirada/inexistente → redirigir
+    // 403 solo redirigir si el token es inválido/expirado, NO si el email no está verificado
+    const esTokenInvalido =
+      status === 401 ||
+      (status === 403 && (
+        mensaje.toLowerCase().includes('token inválido') ||
+        mensaje.toLowerCase().includes('token expirado')
+      ));
+
+    if (esTokenInvalido) {
       localStorage.removeItem('nexlink_token');
       localStorage.removeItem('nexlink_user');
       window.location.href = '/login';
     }
+
     return Promise.reject(err);
   }
 );

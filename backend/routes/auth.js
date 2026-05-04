@@ -177,7 +177,6 @@ router.get('/verificar', async (req, res) => {
   res.json({ message: '¡Email verificado! Ya puedes iniciar sesión.', verificado: true });
 });
 
-module.exports = router;
 
 // POST /api/auth/cambiar-password-forzado — solo para usuarios con debeCambiarPassword=true
 router.post('/cambiar-password-forzado', async (req, res) => {
@@ -206,3 +205,5 @@ router.post('/cambiar-password-forzado', async (req, res) => {
 
   res.json({ message: 'Contraseña actualizada exitosamente' });
 });
+
+module.exports = router;

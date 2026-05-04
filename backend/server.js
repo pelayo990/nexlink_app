@@ -13,6 +13,8 @@ const dashboardRoutes = require('./routes/dashboard');
 const comprasRoutes = require('./routes/compras');
 const reportesRoutes = require('./routes/reportes');
 const uploadsRoutes = require('./routes/uploads');
+const bannersRoutes = require('./routes/banners');
+const paginaEmpresaRoutes = require('./routes/paginaEmpresa');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,6 +33,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/compras', comprasRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/uploads', uploadsRoutes);
+app.use('/api/banners', bannersRoutes);
+app.use('/api/pagina-empresa', paginaEmpresaRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', version: '2.0.0', plataforma: 'NexLink', db: 'PostgreSQL' });
@@ -44,9 +48,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 NexLink Backend v2.0 corriendo en http://localhost:${PORT}`);
 });
-
-const bannersRoutes = require('./routes/banners');
-app.use('/api/banners', bannersRoutes);
-
-const paginaEmpresaRoutes = require('./routes/paginaEmpresa');
-app.use('/api/pagina-empresa', paginaEmpresaRoutes);
