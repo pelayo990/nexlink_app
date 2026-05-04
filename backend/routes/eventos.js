@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
   const { rol, empresaId } = req.user;
 
   const where = {};
@@ -31,9 +32,9 @@ router.get('/', authMiddleware, async (req, res) => {
   }));
 
   res.json(enriched);
-});
+}));
 
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, asyncHandler(async (req, res) => {
   const evento = await prisma.evento.findUnique({
     where: { id: req.params.id },
     include: {
@@ -44,9 +45,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
   });
   if (!evento) return res.status(404).json({ error: 'Evento no encontrado' });
   res.json({ ...evento, marca: evento.empresa });
-});
+}));
 
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, asyncHandler(async (req, res) => {
   try {
     const { empresasInvitadas, marca, empresa, _count, totalProductos, ...rest } = req.body;
 
@@ -77,9 +78,9 @@ router.post('/', authMiddleware, async (req, res) => {
     console.error('Error creando evento:', e.message);
     res.status(500).json({ error: e.message });
   }
-});
+}));
 
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, asyncHandler(async (req, res) => {
   const { empresasInvitadas, empresaId, marca, ...rest } = req.body;
   const evento = await prisma.evento.update({
     where: { id: req.params.id },
@@ -87,14 +88,14 @@ router.put('/:id', authMiddleware, async (req, res) => {
     include: { empresa: true },
   });
   res.json({ ...evento, marca: evento.empresa });
-});
+}));
 
 module.exports = router;
 
 // DELETE /api/eventos/:id
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, asyncHandler(async (req, res) => {
   await prisma.compra.deleteMany({ where: { eventoId: req.params.id } });
   await prisma.eventoEmpresa.deleteMany({ where: { eventoId: req.params.id } });
   await prisma.evento.delete({ where: { id: req.params.id } });
   res.json({ message: 'Evento eliminado' });
-});
+}));

@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
 // Admin dashboard
-router.get('/admin', authMiddleware, async (req, res) => {
+router.get('/admin', authMiddleware, asyncHandler(async (req, res) => {
   const [empresas, colaboradores, eventos, totalTransacciones, ventasPorMes] = await Promise.all([
     prisma.empresa.findMany(),
     prisma.colaborador.findMany(),
@@ -55,10 +56,10 @@ router.get('/admin', authMiddleware, async (req, res) => {
     eventosRecientes: eventos.slice(0, 4),
     ventasMensuales,
   });
-});
+}));
 
 // Empresa dashboard
-router.get('/empresa/:id', authMiddleware, async (req, res) => {
+router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
   const empresa = await prisma.empresa.findUnique({ where: { id: req.params.id } });
   if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
 
@@ -99,10 +100,10 @@ router.get('/empresa/:id', authMiddleware, async (req, res) => {
     topColaboradores: [...colaboradoresE].sort((a, b) => b.puntos - a.puntos).slice(0, 5),
     participacionMensual,
   });
-});
+}));
 
 // Colaborador dashboard
-router.get('/colaborador/:id', authMiddleware, async (req, res) => {
+router.get('/colaborador/:id', authMiddleware, asyncHandler(async (req, res) => {
   const colaborador = await prisma.colaborador.findUnique({
     where: { id: req.params.id },
     include: { compras: { include: { producto: true, evento: true } } },
@@ -129,6 +130,6 @@ router.get('/colaborador/:id', authMiddleware, async (req, res) => {
     eventosDisponibles: eventosDisp.map(e => ({ ...e, marca: e.empresa })),
     historialCompras: colaborador.compras,
   });
-});
+}));
 
 module.exports = router;

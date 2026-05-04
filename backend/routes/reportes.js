@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
 // GET /api/reportes/resumen
-router.get('/resumen', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.get('/resumen', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   const [
     totalMarcas, totalEmpresas, totalColaboradores, totalEventos,
     totalProductos, totalCompras, comprasMonto,
@@ -73,12 +74,12 @@ router.get('/resumen', authMiddleware, roleMiddleware('admin'), async (req, res)
     topProductos: topProductosEnriquecidos,
     ventasMensuales: Object.entries(ventasMensuales).map(([mes, ventas]) => ({ mes, ventas })),
   });
-});
+}));
 
 module.exports = router;
 
 // GET /api/reportes/empresa/:id
-router.get('/empresa/:id', authMiddleware, async (req, res) => {
+router.get('/empresa/:id', authMiddleware, asyncHandler(async (req, res) => {
   const empresaId = req.params.id;
 
   const [
@@ -151,4 +152,4 @@ router.get('/empresa/:id', authMiddleware, async (req, res) => {
     topColaboradores: colaboradoresConPuntos,
     ventasMensuales: Object.entries(ventasMensuales).map(([mes, monto]) => ({ mes, monto })),
   });
-});
+}));

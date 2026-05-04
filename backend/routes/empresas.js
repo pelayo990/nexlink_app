@@ -3,24 +3,25 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
 // GET /api/empresas
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
   const empresas = await prisma.empresa.findMany({ orderBy: { nombre: 'asc' } });
   res.json(empresas);
-});
+}));
 
 // GET /api/empresas/:id
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, asyncHandler(async (req, res) => {
   const empresa = await prisma.empresa.findUnique({ where: { id: req.params.id } });
   if (!empresa) return res.status(404).json({ error: 'Empresa no encontrada' });
   res.json(empresa);
-});
+}));
 
 // POST /api/empresas
-router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.post('/', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   try {
     const { usuarioNombre, usuarioEmail, usuarioPassword, editUsuarioEmail, editUsuarioPassword, ...empresaData } = req.body;
 
@@ -52,10 +53,10 @@ router.post('/', authMiddleware, roleMiddleware('admin'), async (req, res) => {
     console.error('Error creando empresa:', e.message);
     res.status(500).json({ error: e.message });
   }
-});
+}));
 
 // PUT /api/empresas/:id
-router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.put('/:id', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   try {
     const { usuarioNombre, usuarioEmail, usuarioPassword, editUsuarioEmail, editUsuarioPassword, ...empresaData } = req.body;
 
@@ -91,10 +92,10 @@ router.put('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => 
     console.error('Error actualizando empresa:', e.message);
     res.status(500).json({ error: e.message });
   }
-});
+}));
 
 // POST /api/empresas/:id/dominios
-router.post('/:id/dominios', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.post('/:id/dominios', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   const { dominios } = req.body;
   if (!Array.isArray(dominios)) return res.status(400).json({ error: 'dominios debe ser un array' });
   const empresa = await prisma.empresa.update({
@@ -102,10 +103,10 @@ router.post('/:id/dominios', authMiddleware, roleMiddleware('admin'), async (req
     data: { dominiosPermitidos: dominios.map(d => d.toLowerCase().trim()).filter(Boolean) },
   });
   res.json(empresa);
-});
+}));
 
 // DELETE /api/empresas/:id
-router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.delete('/:id', authMiddleware, roleMiddleware('admin'), asyncHandler(async (req, res) => {
   try {
     const colaboradores = await prisma.colaborador.findMany({ where: { empresaId: req.params.id } });
     for (const c of colaboradores) {
@@ -123,6 +124,6 @@ router.delete('/:id', authMiddleware, roleMiddleware('admin'), async (req, res) 
     console.error('Error eliminando empresa:', e.message);
     res.status(500).json({ error: e.message });
   }
-});
+}));
 
 module.exports = router;

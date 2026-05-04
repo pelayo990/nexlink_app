@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
 // GET /api/pagina-empresa/:empresaId
-router.get('/:empresaId', authMiddleware, async (req, res) => {
+router.get('/:empresaId', authMiddleware, asyncHandler(async (req, res) => {
   const { empresaId } = req.params;
 
   let pagina = await prisma.paginaEmpresa.findUnique({ where: { empresaId } });
@@ -30,10 +31,10 @@ router.get('/:empresaId', authMiddleware, async (req, res) => {
   });
 
   res.json({ pagina, empresa, productos, eventos });
-});
+}));
 
 // PUT /api/pagina-empresa/:empresaId
-router.put('/:empresaId', authMiddleware, async (req, res) => {
+router.put('/:empresaId', authMiddleware, asyncHandler(async (req, res) => {
   const { empresaId } = req.params;
 
   const pagina = await prisma.paginaEmpresa.upsert({
@@ -43,6 +44,6 @@ router.put('/:empresaId', authMiddleware, async (req, res) => {
   });
 
   res.json(pagina);
-});
+}));
 
 module.exports = router;

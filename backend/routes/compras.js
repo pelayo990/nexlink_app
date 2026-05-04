@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 
 const prisma = new PrismaClient();
 
 // POST /api/compras
-router.post('/', authMiddleware, roleMiddleware('colaborador'), async (req, res) => {
+router.post('/', authMiddleware, roleMiddleware('colaborador'), asyncHandler(async (req, res) => {
   const { productoId, eventoId } = req.body;
   const { colaboradorId } = req.user;
 
@@ -61,20 +62,20 @@ router.post('/', authMiddleware, roleMiddleware('colaborador'), async (req, res)
   });
 
   res.status(201).json(compra);
-});
+}));
 
 // GET /api/compras/mis-compras
-router.get('/mis-compras', authMiddleware, roleMiddleware('colaborador'), async (req, res) => {
+router.get('/mis-compras', authMiddleware, roleMiddleware('colaborador'), asyncHandler(async (req, res) => {
   const compras = await prisma.compra.findMany({
     where: { colaboradorId: req.user.colaboradorId },
     include: { producto: { include: { empresa: true } }, evento: true },
     orderBy: { fecha: 'desc' },
   });
   res.json(compras);
-});
+}));
 
 // GET /api/compras/validar?productoId=x&eventoId=y
-router.get('/validar', authMiddleware, roleMiddleware('colaborador'), async (req, res) => {
+router.get('/validar', authMiddleware, roleMiddleware('colaborador'), asyncHandler(async (req, res) => {
   const { productoId, eventoId } = req.query;
   const { colaboradorId } = req.user;
 
@@ -108,6 +109,6 @@ router.get('/validar', authMiddleware, roleMiddleware('colaborador'), async (req
   }
 
   res.json(resultado);
-});
+}));
 
 module.exports = router;
