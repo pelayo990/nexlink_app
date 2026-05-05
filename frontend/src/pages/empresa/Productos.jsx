@@ -13,6 +13,9 @@ function Modal({ producto, eventos, onClose, onSave }) {
   const [form, setForm] = useState(producto || EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mlUrl, setMlUrl] = useState('');
+  const [loadingML, setLoadingML] = useState(false);
+  const [mlError, setMlError] = useState('');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -20,6 +23,30 @@ function Modal({ producto, eventos, onClose, onSave }) {
     if (original && evento) {
       const pct = Math.round((1 - evento / original) * 100);
       setForm(f => ({ ...f, descuento: pct > 0 ? pct : 0 }));
+    }
+  };
+
+  const importarDesdeML = async () => {
+    if (!mlUrl.trim()) return;
+    setLoadingML(true);
+    setMlError('');
+    try {
+      const { data } = await api.post('/scraper/mercadolibre', { url: mlUrl });
+      setForm(f => ({
+        ...f,
+        nombre: data.nombre || f.nombre,
+        descripcion: data.descripcion || f.descripcion,
+        precioOriginal: data.precioOriginal || f.precioOriginal,
+        precioEvento: data.precioEvento || f.precioEvento,
+        descuento: data.descuento || f.descuento,
+        imagen: data.imagen || f.imagen,
+        sku: data.sku || f.sku,
+        condicion: data.condicion || f.condicion,
+      }));
+    } catch (e) {
+      setMlError(e.response?.data?.error || 'No se pudo importar el producto. Verifica la URL.');
+    } finally {
+      setLoadingML(false);
     }
   };
 
@@ -60,7 +87,34 @@ function Modal({ producto, eventos, onClose, onSave }) {
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={20} /></button>
         </div>
         {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>{error}</div>}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Importar desde MercadoLibre */}
+          <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: '14px 16px' }}>
+            <label style={{ fontSize: 13, fontWeight: 700, display: 'block', marginBottom: 6, color: '#166534' }}>
+              🛒 Importar desde MercadoLibre (opcional)
+            </label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                className="input"
+                value={mlUrl}
+                onChange={e => setMlUrl(e.target.value)}
+                placeholder="https://www.mercadolibre.cl/..."
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={importarDesdeML}
+                disabled={loadingML || !mlUrl.trim()}
+                style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#16A34A', color: '#fff', fontWeight: 700, fontSize: 13, cursor: loadingML || !mlUrl.trim() ? 'default' : 'pointer', opacity: !mlUrl.trim() ? 0.5 : 1, whiteSpace: 'nowrap' }}>
+                {loadingML ? 'Importando...' : 'Autorrellenar'}
+              </button>
+            </div>
+            {mlError && <div style={{ marginTop: 8, fontSize: 12, color: '#991B1B' }}>{mlError}</div>}
+            {!mlError && !loadingML && mlUrl && form.nombre && <div style={{ marginTop: 8, fontSize: 12, color: '#166534', fontWeight: 600 }}>✓ Datos importados correctamente</div>}
+          </div>
+
           <div>
             <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nombre *</label>
             <input className="input" value={form.nombre} onChange={e => set('nombre', e.target.value)} style={{ width: '100%' }} />
@@ -103,7 +157,6 @@ function Modal({ producto, eventos, onClose, onSave }) {
           <div>
             <ImageUpload value={form.imagen} onChange={url => set('imagen', url)} label="Imagen del producto" />
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Stock *</label>
